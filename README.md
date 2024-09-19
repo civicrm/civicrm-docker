@@ -2,9 +2,9 @@
 
 This repository contains resources to run CiviCRM on Docker.
 
-Container images are published on [Docker Hub](https://hub.docker.com/u/civicrm) for all stable versions of CiviCRM *standalone* as part of CiviCRM's regular [release process](https://docs.civicrm.org/dev/en/latest/core/release-process/).
+Container images are published to [Docker Hub](https://hub.docker.com/u/civicrm) for all stable versions of CiviCRM *standalone* as part of CiviCRM's regular [release process](https://docs.civicrm.org/dev/en/latest/core/release-process/).
 
-If you are looking for a **ready to use** CiviCRM application, use **`civicrm/civicrm`**. If you are looking for an image that you can use as the base for a **custom build**, try **`civicrm/civicrm-base`**.
+If you are looking for a **ready to use** CiviCRM application, use `civicrm/civicrm`. If you are looking for an image that you can use as part of a customised **Docker build process**, use `civicrm/civicrm-base`.
 
 Note: there are currently no official *CiviCRM for WordPress, Joomla Backdrop or Drupal* images.
 
@@ -63,16 +63,6 @@ Skip the tag to default to the [the most recent version that CiviCRM recommends]
 **WORK IN PROGRESS**
 
 Subscribers to the ESR can download images for the ESR from a private registry on https://lab.civicrm.org.
-
-## Deployment tips and tricks
-
-You will want to think about things like SSL termination, caching, etc.
-
-You can turn on automatic install and automatic upgrades by setting the following environment variables to 1.
-
-These will be run as part of the entry point script.
-
-**TODO**
 
 ## Building images
 
@@ -135,7 +125,7 @@ Diagram showing how all the images relate to each other.
 
 ```mermaid
 flowchart BT
-    C[civicrm
+    C[civicrm]
     B[civicrm-base] --> C
     A[common-base] --> B
     E[wordpress]
@@ -154,9 +144,13 @@ The `build.php` script can be used to build images.
 
 Calling `build.php` without any arguments will build the latest stable version of CiviCRM and push it to docker hub.
 
-- **--dry-run** - just output the commands that would be executed
-- **--step** - run one step at a time
+If you are publishing official images on Docker Hub, make sure to run it in an environment that can publish multiplatform images, and can push to the CiviCRM docker account.
+
+Command options are as follows:
+
 - **--image-prefix=** - a custom image prefix (defaults to `civicrm`)
 - **--php-version=** - build a specific php version (defaults to all supported versions)
 - **--no-cache** - do not use a cache when building the images
-- **--skip-push** - build the images but do not push them to docker hub
+- **--skip-push** - build the images but do not push them to Docker Hub
+- **--dry-run** - just output the commands that would be executed
+- **--step** - run one step at a time
