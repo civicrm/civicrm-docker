@@ -1,0 +1,35 @@
+services:
+  app:
+    hostname: example
+    image: civicrm/civicrm:latest
+    ports:
+      - 8760:80 # CiviCRM will be available on port 8760
+    restart: unless-stopped
+    volumes:
+      - private:/var/www/html/private
+      - public:/var/www/html/public
+      - ext:/var/www/html/civicrm-extensions # For downloaded extensions
+    environment:
+      CIVICRM_DB_HOST: db
+      CIVICRM_DB_PORT: 3306
+      CIVICRM_DB_NAME: civicrm
+      CIVICRM_DB_USER: civicrm
+      CIVICRM_DB_PASSWORD: ${MYSQL_PASSWORD}
+      CIVICRM_BASE_URL: http://localhost:8760
+      CIVICRM_SETTING_EXTENSIONS_DIR: /var/www/html/civicrm-extensions
+  db:
+    hostname: db
+    image: mariadb:10.11
+    restart: unless-stopped
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: civicrm
+      MYSQL_USER: civicrm
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+volumes:
+  db:
+  private:
+  public:
+  ext:

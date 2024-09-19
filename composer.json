@@ -1,0 +1,17 @@
+{
+    "name": "civicrm/publish-docker",
+    "autoload": {
+        "psr-4": {
+            "Totten\\Example\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Michael McAndrew",
+            "email": "michaelmcandrew@thirdsectordesign.org"
+        }
+    ],
+    "require": {
+        "clippy/std": "~0.4.6"
+    }
+}
