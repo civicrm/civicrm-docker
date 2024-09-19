@@ -119,9 +119,9 @@ RUN curl https://whizzy.com/download/whizzy.tar.gz && \
   tar -xf whizzy.tar.gz 
 ```
 
-### Image architecture
 
-Diagram showing how all the images relate to each other.
+
+### Image architecture
 
 ```mermaid
 flowchart BT
