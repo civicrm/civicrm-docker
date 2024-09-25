@@ -7,7 +7,7 @@
 # You may find this image useful as a base image for custom CiviCRM Standalone
 # build processes.
 
-ARG PHP_VERSION
+ARG PHP_VERSION=8.3
 
 ARG IMAGE_PREFIX=civicrm
 
