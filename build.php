@@ -110,8 +110,6 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
     }
     $images = $filteredImages;
   }
-  var_dump($images);
-  exit;
 
   // Build each image.
   foreach ($images as $image) {
