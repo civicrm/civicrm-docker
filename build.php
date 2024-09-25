@@ -105,7 +105,7 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
     $imageFilters = explode(',', $imageFilter);
     foreach ($images as $k => $image) {
       if (in_array($image['dir'], $imageFilters)) {
-        $filteredImages = $image;
+        $filteredImages[] = $image;
       }
     }
     $images = $filteredImages;
