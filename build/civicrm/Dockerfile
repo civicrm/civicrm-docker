@@ -44,6 +44,8 @@ COPY docker-civicrm-install /usr/local/bin/
 
 ENV CIVICRM_LOG_HASH=0
 
+ENV CIVICRM_UF=Standalone
+
 # Point the settings file to civicrm.standalone.php
 #
 # This may not be necessary in the future.
