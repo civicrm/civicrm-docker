@@ -15,7 +15,7 @@ services:
       CIVICRM_DB_NAME: civicrm
       CIVICRM_DB_USER: civicrm
       CIVICRM_DB_PASSWORD: ${MYSQL_PASSWORD}
-      CIVICRM_BASE_URL: http://localhost:8760
+      CIVICRM_UF_BASEURL: http://localhost:8760
       CIVICRM_SETTING_EXTENSIONS_DIR: /var/www/html/civicrm-extensions
   db:
     hostname: db
