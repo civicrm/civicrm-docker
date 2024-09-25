@@ -7,7 +7,15 @@ use function Clippy\plugins;
 require_once __DIR__ . '/vendor/autoload.php';
 $c = clippy()->register(plugins());
 
-$c['app']->main('[--dry-run] [--step] [--image-prefix=] [--php-version=] [--download-url=] [--skip-push] [--no-cache]', function(Clippy\Taskr $taskr, $imagePrefix, $phpVersion, $downloadUrl, $skipPush, $noCache) {
+$c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php-version=] [--download-url=] [--skip-push] [--no-cache]', function(
+  Clippy\Taskr $taskr,
+  $imagePrefix,
+  $imageFilter,
+  $phpVersion,
+  $downloadUrl,
+  $skipPush,
+  $noCache
+) {
 
   // CiviCRM version
   $civiVersion =
@@ -92,6 +100,19 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--php-version=] [--down
     ],
   ];
 
+  if ($imageFilter) {
+    $filteredImages = [];
+    $imageFilters = explode(',', $imageFilter);
+    foreach ($images as $k => $image) {
+      if (in_array($image['dir'], $imageFilters)) {
+        $filteredImages = $image;
+      }
+    }
+    $images = $filteredImages;
+  }
+  var_dump($images);
+  exit;
+
   // Build each image.
   foreach ($images as $image) {
     foreach ($phpVersions as $phpVersion) {
@@ -107,6 +128,7 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--php-version=] [--down
         $tagFlags,
         $extraFlags,
       ]);
+
     }
   }
 });

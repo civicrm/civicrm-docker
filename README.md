@@ -12,7 +12,7 @@ Note: there are currently no official *CiviCRM for WordPress, Joomla Backdrop or
 
 Run the CiviCRM image with. `docker run -p 8000:80 civicrm/civicrm`. You'll see CiviCRM's installation screen at http://localhost:8000.
 
-For a more complete working example, with sugggested environment variables and volumes, and an accompanying database service, etc., see the annotated docker compose file at `examples/compose.yaml`.
+For a more complete working example, with suggested environment variables and volumes, and an accompanying database service, etc., see the annotated docker compose file at `examples/compose.yaml`.
 
 Note: these instructions are not designed for use in a production set up - they are intended to provide a minimal local environment for testing purposes.
 
@@ -148,9 +148,11 @@ If you are publishing official images on Docker Hub, make sure to run it in an e
 
 Command options are as follows:
 
-- **--image-prefix=** - a custom image prefix (defaults to `civicrm`)
-- **--php-version=** - build a specific php version (defaults to all supported versions)
-- **--no-cache** - do not use a cache when building the images
+- **--image-prefix=** - a custom prefix for generated images (defaults to `civicrm`)
+- **--image-filter=** - only build the specified images (comma seperated list)
+- **--php-version=** - build a single specific php version (defaults to all supported versions)
+- **--download-url=** - a specific tarball to download  
 - **--skip-push** - build the images but do not push them to Docker Hub
+- **--no-cache** - do not use a cache when building the images
 - **--dry-run** - just output the commands that would be executed
 - **--step** - run one step at a time
