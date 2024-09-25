@@ -33,7 +33,7 @@ docker compose up -d
 3. Wait for the database to initialise and then install CiviCRM with (note the environment variables that are passed into the container with this command):
 
 ```shell
-docker compose exec -e CIVICRM_ADMIN_USER=admin -e CIVICRM_ADMIN_PASS=password app docker-civicrm-install
+docker compose exec -e CIVICRM_ADMIN_USER=admin -e CIVICRM_ADMIN_PASS=password app civicrm-docker-install
 ```
 
 4. Visit http://localhost:8760 and log in using the credential supplied above.

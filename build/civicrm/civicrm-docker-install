@@ -6,3 +6,5 @@ cv core:install \
   --cms-base-url=${CIVICRM_UF_BASEURL} \
   -m extras.adminUser=${CIVICRM_ADMIN_USER} \
   -m extras.adminPass=${CIVICRM_ADMIN_PASS}
+
+# rm /var/www/html/private/civicrm.settings.php 

@@ -34,11 +34,11 @@ COPY --from=build /var/www/html/civicrm-standalone /var/www/html
 
 # Add our own entrypoint
 
-COPY docker-civicrm-entrypoint /usr/local/bin/
+COPY civicrm-docker-entrypoint /usr/local/bin/
 
 # Add an installation script
 
-COPY docker-civicrm-install /usr/local/bin/
+COPY civicrm-docker-install /usr/local/bin/
 
 # Redirect logs to /dev/stderr
 
@@ -57,7 +57,7 @@ RUN mkdir /var/www/html/private/log && ln -sfT /dev/stderr /var/www/html/private
 
 # Set ENTRYPOINT
 
-ENTRYPOINT ["docker-civicrm-entrypoint"]
+ENTRYPOINT ["civicrm-docker-entrypoint"]
 
 # Set CMD
 #
