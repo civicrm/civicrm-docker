@@ -40,20 +40,7 @@ COPY civicrm-docker-entrypoint /usr/local/bin/
 
 COPY civicrm-docker-install /usr/local/bin/
 
-# Redirect logs to /dev/stderr
-
-ENV CIVICRM_LOG_HASH=0
-
 ENV CIVICRM_UF=Standalone
-
-# Point the settings file to civicrm.standalone.php
-#
-# This may not be necessary in the future.
-
-ENV CIVICRM_SETTINGS_PATH=/var/www/html/civicrm.standalone.php
-
-
-RUN mkdir /var/www/html/private/log && ln -sfT /dev/stderr /var/www/html/private/log/CiviCRM.1.log
 
 # Set ENTRYPOINT
 
