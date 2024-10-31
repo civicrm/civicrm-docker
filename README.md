@@ -31,11 +31,11 @@ A more complete 'quick start' built with docker compose can be found in the [`ex
 MYSQL_PASSWORD=INSECURE_PASSWORD        # change these
 MYSQL_ROOT_PASSWORD=INSECURE_PASSWORD   # if you want to
 ```
-2. start the compose project with `docker compose up -d`
-3. wait for the database to initialise (you can check progress with `docker compose logs -f`).
-4. install CiviCRM with `docker compose exec -e CIVICRM_ADMIN_USER=admin -e CIVICRM_ADMIN_PASS=password app civicrm-docker-install` (note that we are passing in the admin username and password as environment variables here - you can change them if you want to).
-5. visit http://localhost:8760 and log in using the credential supplied above.
-6. when you are finished, bring the project down with `docker compose down`.
+4. start the compose project with `docker compose up -d`
+5. wait for the database to initialise (you can check progress with `docker compose logs -f`).
+6. install CiviCRM with `docker compose exec -e CIVICRM_ADMIN_USER=admin -e CIVICRM_ADMIN_PASS=password app civicrm-docker-install` (note that we are passing in the admin username and password as environment variables here - you can change them if you want to).
+7. visit http://localhost:8760 and log in using the credential supplied above.
+8. when you are finished, bring the project down with `docker compose down`.
 
 ## Tags
 
