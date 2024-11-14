@@ -15,6 +15,9 @@ Note: these instructions are not designed for use in a production set up - they 
 - https://docs.docker.com/get-started/
 - https://docs.docker.com/compose/gettingstarted
 
+Note: until these images are published on docker hub, you will need to tart by building them locally. You can do by running `php build.php --skip-push`. See *Management* below for more details.
+
+
 ### Running the image
 
 Run the CiviCRM image with. `docker run -p 8000:80 civicrm/civicrm`. You'll see CiviCRM's installation screen at http://localhost:8000 where you will be prompted for database credentials, etc. 
@@ -134,9 +137,9 @@ Note: the WordPress images do not currently exist but are here to illustrate how
 
 ## Management
 
-The `build.php` script can be used to build images.
+The `./build.php` script can be used to build images.
 
-Calling `build.php` without any arguments will build the latest stable version of CiviCRM and push it to docker hub.
+Calling `./build.php` without any arguments will build the latest stable version of CiviCRM and push it to docker hub.
 
 If you are publishing official images on Docker Hub, make sure to run it in an environment that can publish multiplatform images, and can push to the CiviCRM docker account.
 
@@ -150,3 +153,5 @@ Command options are as follows:
 - **--no-cache** - do not use a cache when building the images
 - **--dry-run** - just output the commands that would be executed
 - **--step** - run one step at a time
+
+Note: before running `./build.php`, you will need to install the required dependencies with `composer install` (see https://getcomposer.org/ for more details).
