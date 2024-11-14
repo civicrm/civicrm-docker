@@ -17,6 +17,9 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
   $noCache
 ) {
 
+  // Create an array of all potential build arguments
+  $args = [];
+
   // CiviCRM version
   $civiVersion =
     $args['CIVICRM_VERSION'] =
@@ -42,10 +45,6 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
     ]);
   }
 
-  // Populate a $buildArgs array with appropriate values that can be substituted
-  // into the build command.
-
-  $args = [];
   $args['IMAGE_PREFIX'] = $imagePrefix;
 
   if ($downloadUrl) {
