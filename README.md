@@ -15,8 +15,6 @@ Note: these instructions are not designed for use in a production set up - they 
 - https://docs.docker.com/get-started/
 - https://docs.docker.com/compose/gettingstarted
 
-Note: until these images are published on docker hub, you will need to start by building them locally. You can do by running `php build.php --skip-push`. See *Management* below for more details.
-
 
 ### Running the image
 
