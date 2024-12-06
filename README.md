@@ -149,6 +149,8 @@ Command options are as follows:
 - **--image-filter=** - only build the specified images (comma seperated list)
 - **--php-version=** - build a single specific php version (defaults to all supported versions)
 - **--download-url=** - a specific tarball to download  
+- **--builder=** - the docker build builder to use
+- **--platform=** - the platforms to build for
 - **--skip-push** - build the images but do not push them to Docker Hub
 - **--no-cache** - do not use a cache when building the images
 - **--dry-run** - just output the commands that would be executed

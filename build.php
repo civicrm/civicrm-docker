@@ -7,12 +7,14 @@ use function Clippy\plugins;
 require_once __DIR__ . '/vendor/autoload.php';
 $c = clippy()->register(plugins());
 
-$c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php-version=] [--download-url=] [--skip-push] [--no-cache]', function(
+$c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php-version=] [--download-url=] [--builder=] [--platform=] [--skip-push]  [--no-cache]', function(
   Clippy\Taskr $taskr,
   $imagePrefix,
   $imageFilter,
   $phpVersion,
   $downloadUrl,
+  $builder,
+  $platform,
   $skipPush,
   $noCache
 ) {
@@ -59,6 +61,14 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
 
   if (!$skipPush) {
     $extraFlags[] = '--push';
+  }
+
+  if ($platform) {
+    $extraFlags[] = '--platform ' . $platform;
+  }
+
+  if ($builder) {
+    $extraFlags[] = '--builder ' . $builder;
   }
 
   // This associative array defines all the images that we build.
