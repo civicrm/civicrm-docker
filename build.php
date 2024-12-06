@@ -129,7 +129,7 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
       $buildArgs = getBuildArgs($args, $image);
       $tagFlags = getTagFlags("{$imagePrefix}/{$image['dir']}", $parts, $defaults);
 
-      $taskr->passthru('docker build build/{{0}} {{1|@}} {{2|@}} {{3|@}}', [
+      $taskr->passthru('docker build ' . __DIR__ . '/' . 'build/{{0}} {{1|@}} {{2|@}} {{3|@}}', [
         $image['dir'],
         $buildArgs,
         $tagFlags,
