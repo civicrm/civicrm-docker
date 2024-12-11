@@ -8,7 +8,7 @@ services:
     volumes:
       - private:/var/www/html/private
       - public:/var/www/html/public
-      - ext:/var/www/html/civicrm-extensions # For downloaded extensions.
+      - ext:/var/www/html/ext
     environment:
       CIVICRM_DB_HOST: db
       CIVICRM_DB_PORT: 3306
@@ -17,7 +17,6 @@ services:
       CIVICRM_DB_PASSWORD: ${MYSQL_PASSWORD}
       # CIVICRM_DSN: mysql://civicrm:${MYSQL_PASSWORD}@db:3306/civicrm # Note: you can also pass database credentials as a DSN.
       CIVICRM_UF_BASEURL: http://localhost:8760
-      CIVICRM_SETTING_EXTENSIONS_DIR: /var/www/html/civicrm-extensions
   db:
     hostname: db
     image: mariadb:10.11
@@ -30,7 +29,7 @@ services:
       MYSQL_USER: civicrm
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 volumes:
-  db:
   private:
   public:
   ext:
+  db:

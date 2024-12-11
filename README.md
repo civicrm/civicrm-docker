@@ -15,10 +15,9 @@ Note: these instructions are not designed for use in a production set up - they 
 - https://docs.docker.com/get-started/
 - https://docs.docker.com/compose/gettingstarted
 
-
 ### Running the image
 
-Run the CiviCRM image with. `docker run -p 8000:80 civicrm/civicrm`. You'll see CiviCRM's installation screen at http://localhost:8000 where you will be prompted for database credentials, etc. 
+Run the CiviCRM image with. `docker run --detach --publish 8000:80 civicrm/civicrm`. You'll see CiviCRM's installation screen at http://localhost:8000 where you will be prompted for database credentials, etc. 
 
 ### With docker compose
 
@@ -37,10 +36,24 @@ MYSQL_ROOT_PASSWORD=INSECURE_PASSWORD   # if you want to
 6. install CiviCRM with `docker compose exec -e CIVICRM_ADMIN_USER=admin -e CIVICRM_ADMIN_PASS=password app civicrm-docker-install` (note that we are passing in the admin username and password as environment variables here - you can change them if you want to).
 7. visit http://localhost:8760 and log in using the credential supplied above.
 8. when you are finished, bring the project down with `docker compose down`.
+   
+## Usage
+
+### Installation
+
+The `civicrm/civicrm` image comes with a convenience script for installing a site: `civicrm-docker-install`. The script expects database credentials and the admin username (`CIVICRM_ADMIN_USER`) and password (`CIVICRM_ADMIN_PASS`) to be set as environment variables.
+
+It calls the standard CiviCRM installation process. See [build/civicrm/civicrm-docker-install](build/civicrm/civicrm-docker-install) for more details and the docker compose instructions above for an example of how you might call this script.
+
+See also https://docs.civicrm.org/installation/en/latest/standalone/ for more details on the CiviCRM Standalone installation.
+
+### Volumes
+
+The `/var/www/html/public`, `/var/www/html/private` and `/var/www/html/ext` directories should be persisted. See the [`examples/compose.yaml`](examples/compose.yaml) file for an example.
 
 ## Tags
 
-You can use tags to specify a CiviCRM version and php version, for example: 
+You can use tags to specify a CiviCRM version and php version, for example:
 
 `civicrm/civicrm:5.75-php8.3`
 
