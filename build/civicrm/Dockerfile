@@ -18,7 +18,7 @@ ARG CIVICRM_DOWNLOAD_URL="https://download.civicrm.org/civicrm-${CIVICRM_VERSION
 
 # Download the tarball as the admin user
 
-USER admin
+USER 1000:1000
 
 RUN curl --fail --location ${CIVICRM_DOWNLOAD_URL} --output civicrm-standalone.tar.gz \
     && tar -xf civicrm-standalone.tar.gz \
@@ -27,8 +27,6 @@ RUN curl --fail --location ${CIVICRM_DOWNLOAD_URL} --output civicrm-standalone.t
 FROM ${IMAGE_PREFIX}/civicrm-base:php${PHP_VERSION}
 
 # Copy the downloaded tarball to /var/www/html as the admin user
-
-USER admin
 
 COPY --from=build /var/www/html/civicrm-standalone /var/www/html
 
