@@ -16,9 +16,7 @@ ARG CIVICRM_VERSION
 
 ARG CIVICRM_DOWNLOAD_URL="https://download.civicrm.org/civicrm-${CIVICRM_VERSION}-standalone.tar.gz"
 
-# Download the tarball as the admin user
-
-USER 1000:1000
+# Download the tarball
 
 RUN curl --fail --location ${CIVICRM_DOWNLOAD_URL} --output civicrm-standalone.tar.gz \
     && tar -xf civicrm-standalone.tar.gz \
@@ -28,7 +26,7 @@ FROM ${IMAGE_PREFIX}/civicrm-base:php${PHP_VERSION}
 
 # Copy the downloaded tarball to /var/www/html as the admin user
 
-COPY --from=build /var/www/html/civicrm-standalone /var/www/html
+COPY --from=build  --chown=admin:admin /var/www/html/civicrm-standalone /var/www/html
 
 # Add our own entrypoint
 

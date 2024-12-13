@@ -71,8 +71,4 @@ RUN useradd admin --home-dir /home/admin --create-home
 
 # Run apache as admin
 
-ENV APACHE_RUN_USER=admin
-
-ENV APACHE_RUN_GROUP=admin
-
 RUN chown admin:admin /var/www/html 
