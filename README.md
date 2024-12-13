@@ -17,8 +17,8 @@ Note: these instructions are not designed for use in a production set up - they 
 
 ### Running the image
 
-Run the CiviCRM image with. `docker run --detach --publish 8000:80 civicrm/civicrm`. You'll see CiviCRM's installation screen at http://localhost:8000 where you will be prompted for database credentials, etc. 
-
+Run the CiviCRM image with. `docker run --detach --publish 8000:80 civicrm/civicrm`. You'll see CiviCRM's installation screen at http://localhost:8000 where you will be prompted for database credentials, etc. If you need to configure it headless or for other reasons the web interface is not helping you, you can also run `civicrm-docker-install` -- details on how to do this can be found in Usage section.
+ 
 ### With docker compose
 
 A more complete 'quick start' built with docker compose can be found in the [`examples`](examples) directory.
