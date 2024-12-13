@@ -26,7 +26,7 @@ FROM ${IMAGE_PREFIX}/civicrm-base:php${PHP_VERSION}
 
 # Copy the downloaded tarball to /var/www/html as the admin user
 
-COPY --from=build  --chown=admin:admin /var/www/html/civicrm-standalone /var/www/html
+COPY --from=build  --chown=www-data:www-data /var/www/html/civicrm-standalone /var/www/html
 
 # Add our own entrypoint
 
