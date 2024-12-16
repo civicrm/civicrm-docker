@@ -38,6 +38,12 @@ COPY civicrm-docker-install /usr/local/bin/
 
 ENV CIVICRM_UF=Standalone
 
+# Allow Apache port to be configurable
+
+RUN sed -i 's/80/${APACHE_PORT}/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
+
+ENV APACHE_PORT=80  
+
 # Set ENTRYPOINT
 
 ENTRYPOINT ["civicrm-docker-entrypoint"]

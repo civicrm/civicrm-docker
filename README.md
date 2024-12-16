@@ -28,7 +28,7 @@ A more complete 'quick start' built with docker compose can be found in the [`ex
 3. create an `.env` file with two environment variables:
 ```shell
 # .env
-MYSQL_PASSWORD=INSECURE_PASSWORD        # change these
+MYSQL_PASSWORD=INSECURE_PASSWORD        # change these to
 MYSQL_ROOT_PASSWORD=INSECURE_PASSWORD   # if you want to
 ```
 4. start the compose project with `docker compose up -d`
@@ -36,10 +36,24 @@ MYSQL_ROOT_PASSWORD=INSECURE_PASSWORD   # if you want to
 6. install CiviCRM with `docker compose exec -u www-data -e CIVICRM_ADMIN_USER=admin -e CIVICRM_ADMIN_PASS=password app civicrm-docker-install` (note that we are passing in the admin username and password as environment variables here - you can change them if you want to).
 7. visit http://localhost:8760 and log in using the credential supplied above.
 8. when you are finished, bring the project down with `docker compose down`.
-   
-## Usage
 
-### Installation
+## Environment variables
+
+At a minimum, you should set the following environment variables:
+
+- `CIVICRM_DB_HOST`
+- `CIVICRM_DB_PORT`
+- `CIVICRM_DB_NAME`
+- `CIVICRM_DB_USER`
+- `CIVICRM_DB_PASSWORD`
+- `CIVICRM_UF_BASEURL`
+
+Note that the `CIVICRM_DB_*` can be replaced with a single `CIVICRM_DSN` variable.
+
+**Experimental**: you can override the default apache port (in the container) by setting `APACHE_PORT`.
+
+## Installation
+
 
 The `civicrm/civicrm` image comes with a convenience script for installing a site: `civicrm-docker-install`. The script expects database credentials and the admin username (`CIVICRM_ADMIN_USER`) and password (`CIVICRM_ADMIN_PASS`) to be set as environment variables.
 
@@ -47,7 +61,7 @@ It calls the standard CiviCRM installation process. See [build/civicrm/civicrm-d
 
 See also https://docs.civicrm.org/installation/en/latest/standalone/ for more details on the CiviCRM Standalone installation.
 
-### Volumes
+## Volumes
 
 The `/var/www/html/public`, `/var/www/html/private` and `/var/www/html/ext` directories should be persisted. See the [`examples/compose.yaml`](examples/compose.yaml) file for an example.
 
