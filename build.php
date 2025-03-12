@@ -33,7 +33,12 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
     $phpVersions = [$phpVersion];
   }
   else {
-    $phpVersions = ['8.1', '8.2', '8.3', '8.4'];
+    $phpVersions = [
+      '8.1',
+      '8.2',
+      '8.3',
+      //'8.4'
+    ];
   }
 
   $defaults = ['CIVICRM_VERSION' => $civiVersion, 'PHP_VERSION' => 'php8.3'];
