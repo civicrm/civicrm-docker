@@ -1,4 +1,4 @@
-# Published image: civicrm/civicrm-standalone (aliased to civicrm/civicrm)
+# Published image: civicrm/civicrm
 #
 # This is a ready to use CiviCRM standalone image.
 
