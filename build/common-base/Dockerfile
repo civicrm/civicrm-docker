@@ -55,11 +55,15 @@ RUN curl -LsS https://download.civicrm.org/cv/cv.phar -o /usr/local/bin/cv \
 
 # Enable apache rewrite module
 
-RUN a2enmod rewrite
+RUN a2enmod rewrite remoteip
 
 # Add CiviCRM specific Apache configuration 
 
 COPY apache-conf-civicrm.conf /etc/apache2/conf-available/civicrm.conf
+
+# Overwrite default virtual host file
+
+COPY apache-sites-available-default.conf /etc/apache2/sites-available/000-default.conf
 
 # Enable CiviCRM specific configuration
 
