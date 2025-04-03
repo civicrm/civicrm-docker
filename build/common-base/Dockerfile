@@ -64,11 +64,3 @@ COPY apache-conf-civicrm.conf /etc/apache2/conf-available/civicrm.conf
 # Enable CiviCRM specific configuration
 
 RUN a2enconf civicrm
-
-# Add an admin user
-
-RUN useradd admin --home-dir /home/admin --create-home 
-
-# Run apache as admin
-
-RUN chown admin:admin /var/www/html 
