@@ -1,4 +1,4 @@
-# Published image: civicrm/civicrm-standalone-base
+# Published image: civicrm/civicrm-base
 #
 # This is a base image that serves as a foundation for the CiviCRM Standalone
 # image. It is based on the civicrm-base and includes all dependencies required

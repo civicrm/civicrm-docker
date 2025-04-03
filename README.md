@@ -69,11 +69,11 @@ The `/var/www/html/public`, `/var/www/html/private` and `/var/www/html/ext` dire
 
 You can use tags to specify a CiviCRM version and php version, for example:
 
-`civicrm/civicrm:5.75-php8.3`
+`civicrm/civicrm:6.0-php8.3`
 
 ### CiviCRM version
 
-Keep up to date with the latest stable '5.x' release by using the tag `5`, which will receive all minor and patch releases. Pin your site to a minor release by using a minor version tag. For example, `5.75` will receive all patch releases for the 5.75 minor version. 
+Keep up to date with the latest stable '5.x' release by using the tag `5`, which will receive all minor and patch releases. Pin your site to a minor release by using a minor version tag. For example, `6.0` will receive all patch releases for the 6.0 minor version. 
 Skip the tag to default to the latest stable release.
 
 ### PHP version
@@ -102,37 +102,47 @@ The `build/civicrm` Dockerfile is suitable for the most straight forward deploym
 
 For example:
 
-Build an image using CiviCRM 5.75 and PHP version 8.3:
+Build an image using CiviCRM 6.0 and PHP version 8.3:
 
 ```shell
-docker build build/standalone --build-arg CIVICRM_VERSION=5.75 --build-arg PHP_VERSION=8.3 -t my-custom-build
+docker build build/civicrm --build-arg CIVICRM_VERSION=6.0 --build-arg PHP_VERSION=8.3 -t my-custom-build
 ```
 
 Build an image with the latest nightly version of CiviCRM:
 
 ```shell
-docker build build/standalone --build-arg CIVICRM_DOWNLOAD_URL=https://download.civicrm.org/latest/civicrm-NIGHTLY-standalone.tar.gz --build-arg PHP_VERSION=8.3 -t my-civi/civicrm
+docker build build/civicrm --build-arg CIVICRM_DOWNLOAD_URL=https://download.civicrm.org/latest/civicrm-NIGHTLY-standalone.tar.gz --build-arg PHP_VERSION=8.3 -t my-civi/civicrm
 ```
 
-Build an image with the latest nightly version of CiviCRM and a beta release of PHP. In this case, we'll need to build the intermediary images. The `build.php` can help with this:
+Build an image with the latest nightly version of CiviCRM and a specific release of PHP. In this case, we'll need to build the intermediary images.
+
+The `build.php` can help with this:
 
 ```shell
-php build.php -v --php-version=8.4.0beta5 --image-prefix=my-civi
+./build.php --php-version=8.3 --image-prefix=my-civi --skip-push
 ```
 
 If you run `docker image ls "my-civi/*"` after this, you will see something like this: 
 
 ```
-REPOSITORY                        TAG             IMAGE ID       CREATED          SIZE
-my-civi/civicrm                   php8.4.0beta5   27977244bbee   1 minutes ago    1.05GB
-my-civi/civicrm-standalone        php8.4.0beta5   27977244bbee   1 minutes ago    1.05GB
-my-civi/civicrm-base              php8.4.0beta5   c98255ac24d7   7 minutes ago   804MB
-my-civi/civicrm-standalone-base   php8.4.0beta5   995fa75acdf5   7 minutes ago   804MB
+REPOSITORY             TAG            IMAGE ID       CREATED           SIZE
+my-civi/civicrm        6              91d9a3048d81   1 minutes ago     694MB
+my-civi/civicrm        6-php8.3       91d9a3048d81   1 minutes ago     694MB
+my-civi/civicrm        6.0            91d9a3048d81   1 minutes ago     694MB
+my-civi/civicrm        6.0-php8.3     91d9a3048d81   1 minutes ago     694MB
+my-civi/civicrm        6.0.3          91d9a3048d81   1 minutes ago     694MB
+my-civi/civicrm        6.0.3-php8.3   91d9a3048d81   1 minutes ago     694MB
+my-civi/civicrm        latest         91d9a3048d81   1 minutes ago     694MB
+my-civi/civicrm        php8.3         91d9a3048d81   1 minutes ago     694MB
+my-civi/civicrm-base   latest         29f972ae8200   3 minutes ago     561MB
+my-civi/civicrm-base   php8.3         29f972ae8200   3 minutes ago     561MB
+my-civi/common-base    latest         29f972ae8200   7 minutes ago     561MB
+my-civi/common-base    php8.3         29f972ae8200   7 minutes ago     561MB
 ```
 
 ### Custom builds
 
-If you have a custom build process, for example if you have a special way to download CiviCRM, or want to install CiviCRM extensions in the image, consider using `civicrm/civicrm-standalone-base` as your base image.
+If you have a custom build process, for example if you have a special way to download CiviCRM, or want to install CiviCRM extensions in the image, consider using `civicrm/civicrm-base` as your base image.
 
 For example:
 
