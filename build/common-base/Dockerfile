@@ -68,3 +68,5 @@ COPY apache-sites-available-default.conf /etc/apache2/sites-available/000-defaul
 # Enable CiviCRM specific configuration
 
 RUN a2enconf civicrm
+
+RUN chown www-data:www-data /var/www
