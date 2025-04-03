@@ -28,7 +28,7 @@ FROM ${IMAGE_PREFIX}/civicrm-base:php${PHP_VERSION}
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-# Copy the downloaded tarball to /var/www/html as the admin user
+# Copy the downloaded tarball to /var/www/html as the www-data user
 
 COPY --from=build  --chown=www-data:www-data /var/www/html/civicrm-standalone /var/www/html
 

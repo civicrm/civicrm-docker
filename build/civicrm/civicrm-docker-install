@@ -3,7 +3,7 @@ set -ex
 
 cv core:install \
   --db=mysql://${CIVICRM_DB_USER}:${CIVICRM_DB_PASSWORD}@${CIVICRM_DB_HOST}:${CIVICRM_DB_PORT}/${CIVICRM_DB_NAME} \
-  --cms-base-url=${CIVICRM_UF_BASEURL} \
+  --url=${CIVICRM_UF_BASEURL} \
   -m extras.adminUser=${CIVICRM_ADMIN_USER} \
   -m extras.adminPass=${CIVICRM_ADMIN_PASS}
 
