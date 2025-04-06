@@ -1,13 +1,30 @@
 #!/bin/sh
 
 set -e
+# DB_CONFIG
+CIVICRM_DB_USER=${CIVICRM_DB_USER:-"civicrm"}
+CIVICRM_DB_NAME=${CIVICRM_DB_NAME:-"civicrm"}
+CIVICRM_DB_PORT=${CIVICRM_DB_PORT:-"3306"}
+CIVICRM_DB_PASSWORD=${CIVICRM_DB_PASSWORD:-"civicrm"}
+CIVICRM_DB_HOST=${CIVICRM_DB_HOST:-"localhost"}
+
+# civi
+CIVICRM_ADMIN_USER=${CIVICRM_ADMIN_USER:-"admin"}
+CIVICRM_ADMIN_PASS=${CIVICRM_ADMIN_PASS:-"admin"}
+CIVICRM_UF_BASEURL=${CIVICRM_UF_BASEURL:-"example.com"}
+
+# Config
+CIVICRM_AUTO_INSTALL=${CIVICRM_AUTO_INSTALL:-"true"}
+CIVICRM_AUTO_UPDATE=${CIVICRM_AUTO_UPDATE:-"true"}
 
 
 
-if [ -f /var/www/html/private/civicrm.settings.php ]
+
+
+if [ -f "/var/www/html/private/civicrm.settings.php" ]
 then
     echo 'civi already installed nothing to do'
-elif ["${CIVICRM_AUTO_INSTALL}" == "1" ] 
+elif ["$CIVICRM_AUTO_INSTALL" = "true" ] 
 then
     echo 'start installing civicrm'
     cv core:install \
@@ -19,7 +36,7 @@ else
     echo 'If you want to autoinstall civicrm set CIVICRM_AUTO_INSTALL == 1'
 fi
 
-if ["${CIVICRM_AUTO_UPDATE}" == "1"]; then
+if ["$CIVICRM_AUTO_UPDATE" = "true"]; then
     echo 'upgrading database'
     cv upgrade:db
 fi
