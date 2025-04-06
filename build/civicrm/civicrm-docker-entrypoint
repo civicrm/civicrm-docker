@@ -24,7 +24,7 @@ CIVICRM_AUTO_UPDATE=${CIVICRM_AUTO_UPDATE:-"true"}
 if [ -f "/var/www/html/private/civicrm.settings.php" ]
 then
     echo 'civi already installed nothing to do'
-elif ["$CIVICRM_AUTO_INSTALL" == "false" ] 
+elif ["$CIVICRM_AUTO_INSTALL" = "false" ] 
 then
     echo 'If you want to autoinstall civicrm set CIVICRM_AUTO_INSTALL == 1'
 else
@@ -40,6 +40,8 @@ if ["$CIVICRM_AUTO_UPDATE" != "false"]; then
     echo 'upgrading database'
     cv upgrade:db
 fi
+
+chown -R www-data:www-data *
 
 echo 'starting civicrm'
 exec docker-php-entrypoint "$@"
