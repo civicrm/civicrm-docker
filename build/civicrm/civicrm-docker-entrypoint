@@ -7,7 +7,7 @@ set -e
 if [ -f /var/www/html/private/civicrm.settings.php ]
 then
     echo 'civi already installed nothing to do'
-elif [$CIVICRM_AUTO_INSTALL == "1" ] 
+elif ["$CIVICRM_AUTO_INSTALL" == "1" ] 
 then
     echo 'start installing civicrm'
     cv core:install \
@@ -19,7 +19,7 @@ else
     echo 'If you want to autoinstall civicrm set CIVICRM_AUTO_INSTALL == 1'
 fi
 
-if [$CIVICRM_AUTO_UPDATE == "1"]; then
+if ["$CIVICRM_AUTO_UPDATE" == "1"]; then
     echo 'upgrading database'
     cv upgrade:db
 fi
