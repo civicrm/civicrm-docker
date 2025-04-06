@@ -6,7 +6,7 @@ set -e
 # TODO: run the upgrade if required and CIVICRM_AUTO_UPDATE=1
 
 
-if [$CIVICRM_AUTO_INSTALL == "1" || ! -f /var/www/html/private/civicrm.settings.php ]; then
+if [$CIVICRM_AUTO_INSTALL == "1" ] && [! -f /var/www/html/private/civicrm.settings.php ]; then
 cv core:install \
   --db=mysql://${CIVICRM_DB_USER}:${CIVICRM_DB_PASSWORD}@${CIVICRM_DB_HOST}:${CIVICRM_DB_PORT}/${CIVICRM_DB_NAME} \
   --url=${CIVICRM_UF_BASEURL} \
