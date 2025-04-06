@@ -4,6 +4,18 @@ set -e
 
 # TODO: run the installer if we are not installed and CIVICRM_AUTO_INSTALL=1
 # TODO: run the upgrade if required and CIVICRM_AUTO_UPDATE=1
+if (${CIVICRM_AUTO_UPDATE}=1); then
+cv upgrade:db
+fi
+
+
+cv core:install \
+  --db=mysql://${CIVICRM_DB_USER}:${CIVICRM_DB_PASSWORD}@${CIVICRM_DB_HOST}:${CIVICRM_DB_PORT}/${CIVICRM_DB_NAME} \
+  --url=${CIVICRM_UF_BASEURL} \
+  -m extras.adminUser=${CIVICRM_ADMIN_USER} \
+  -m extras.adminPass=${CIVICRM_ADMIN_PASS}
+
+
 
 exec docker-php-entrypoint "$@"
 
