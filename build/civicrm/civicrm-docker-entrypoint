@@ -41,7 +41,7 @@ if ["$CIVICRM_AUTO_UPDATE" != "false"]; then
     cv upgrade:db
 fi
 
-chown -R www-data:www-data *
+chown -R www-data:www-data /var/www/html/*
 
 echo 'starting civicrm'
 exec docker-php-entrypoint "$@"
