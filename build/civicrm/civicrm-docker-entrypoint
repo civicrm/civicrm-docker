@@ -7,7 +7,7 @@ set -e
 if [ -f /var/www/html/private/civicrm.settings.php ]
 then
     echo 'civi already installed nothing to do'
-elif [$CIVICRM_AUTO_INSTALL == "1" ] && [! -f /var/www/html/private/civicrm.settings.php ]; then
+elif [$CIVICRM_AUTO_INSTALL == "1" ] then
     echo 'start installing civicrm'
     cv core:install \
     --db=mysql://${CIVICRM_DB_USER}:${CIVICRM_DB_PASSWORD}@${CIVICRM_DB_HOST}:${CIVICRM_DB_PORT}/${CIVICRM_DB_NAME} \
