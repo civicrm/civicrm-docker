@@ -36,10 +36,10 @@ else
     -m extras.adminPass=${CIVICRM_ADMIN_PASS}
 fi
 
-if ["$CIVICRM_AUTO_UPDATE" != "false"]; then
-    echo 'upgrading database'
-    cv upgrade:db
-fi
+#if ["$CIVICRM_AUTO_UPDATE" != "false"]; then
+ #   echo 'upgrading database'
+  #  cv upgrade:db
+#fi
 
 chown -R www-data:www-data /var/www/html/*
 
