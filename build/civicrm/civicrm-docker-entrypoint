@@ -24,16 +24,16 @@ CIVICRM_AUTO_UPDATE=${CIVICRM_AUTO_UPDATE:-"true"}
 if [ -f "/var/www/html/private/civicrm.settings.php" ]
 then
     echo 'civi already installed nothing to do'
-elif [ "1" == "1" ] 
+elif ["$CIVICRM_AUTO_INSTALL" == "false" ] 
 then
+    echo 'If you want to autoinstall civicrm set CIVICRM_AUTO_INSTALL == 1'
+else
     echo 'start installing civicrm'
     cv core:install \
     --db=mysql://${CIVICRM_DB_USER}:${CIVICRM_DB_PASSWORD}@${CIVICRM_DB_HOST}:${CIVICRM_DB_PORT}/${CIVICRM_DB_NAME} \
     --url=${CIVICRM_UF_BASEURL} \
     -m extras.adminUser=${CIVICRM_ADMIN_USER} \
     -m extras.adminPass=${CIVICRM_ADMIN_PASS}
-else
-    echo 'If you want to autoinstall civicrm set CIVICRM_AUTO_INSTALL == 1'
 fi
 
 if ["$CIVICRM_AUTO_UPDATE" != "false"]; then
