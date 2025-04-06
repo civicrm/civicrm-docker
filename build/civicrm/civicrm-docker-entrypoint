@@ -14,7 +14,7 @@ elif [$CIVICRM_AUTO_INSTALL == "1" ] then
     --url=${CIVICRM_UF_BASEURL} \
     -m extras.adminUser=${CIVICRM_ADMIN_USER} \
     -m extras.adminPass=${CIVICRM_ADMIN_PASS}
-else
+else then
     echo 'If you want to autoinstall civicrm set CIVICRM_AUTO_INSTALL == 1'
 fi
 
