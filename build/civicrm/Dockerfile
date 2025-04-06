@@ -10,7 +10,7 @@ FROM ${IMAGE_PREFIX}/civicrm-base:php${PHP_VERSION} AS build
 
 # Specify a CiviCRM version
 
-ARG CIVICRM_VERSION
+ARG CIVICRM_VERSION="6.1.0"
 
 # Specify a tarball URL to download (overrides CIVICRM_VERSION)
 
