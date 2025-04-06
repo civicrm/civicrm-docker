@@ -5,6 +5,7 @@ set -e
 
 
 if [ -f /var/www/html/private/civicrm.settings.php ]
+then
     echo 'civi already installed nothing to do'
 elif [$CIVICRM_AUTO_INSTALL == "1" ] && [! -f /var/www/html/private/civicrm.settings.php ]; then
     echo 'start installing civicrm'
