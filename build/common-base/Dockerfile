@@ -24,6 +24,7 @@ FROM php:${PHP_VERSION}-apache-bookworm
 # libicu is required for the PHP intl extension
 # libzip-dev is required for the PHP zip extension
 # libpng-dev is required for the PHP gd extension
+# imagemagick, libmagickwand-dev are required for PHP imagick extension
 
 RUN set -eux; \
     apt-get update && \
@@ -31,6 +32,8 @@ RUN set -eux; \
     libicu-dev \
     libpng-dev \
     libzip-dev \
+    imagemagick \
+    libmagickwand-dev \
     && \
     rm -rf /var/lib/apt/lists/*
 
@@ -40,6 +43,11 @@ RUN set -eux; \
 #
 # Tip: you can check what extensions have been installed with:
 # `php -r 'echo implode("\n",get_loaded_extensions());'`.
+
+# imagick is required for eg. Mosaico
+RUN set -eux && \
+    pecl install imagick && \
+    docker-php-ext-enable imagick
 
 RUN set -eux && \
     docker-php-ext-install bcmath && \
