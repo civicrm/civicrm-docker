@@ -35,7 +35,9 @@ RUN set -eux; \
 # Based on https://make.wordpress.org/hosting/handbook/server-environment/#php-extensions
 
 RUN set -eux && \
-    docker-php-ext-install exif
+    docker-php-ext-install exif && \
+    pecl install igbinary && \
+    docker-php-ext-enable igbinary
 
 # Install WP-CLI
 #
@@ -43,4 +45,3 @@ RUN set -eux && \
 
 RUN curl https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /usr/local/bin/wp \
     && chmod +x /usr/local/bin/wp
-
