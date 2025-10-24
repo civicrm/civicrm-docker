@@ -43,9 +43,9 @@ RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php-apache.ini" \
 
 # Set PHP memory limit
 
-RUN echo "memory_limit = ${PHP_MEMORY_LIMIT:-"256M"}\n"  >> $PHP_INI_DIR/php-apache.ini
+RUN echo 'memory_limit = ${PHP_MEMORY_LIMIT:-"256M"}\n'  >> $PHP_INI_DIR/php-apache2handler.ini
 
-RUN echo "memory_limit = -1\n" >> $PHP_INI_DIR/php-cli.ini
+RUN echo 'memory_limit = -1\n' >> $PHP_INI_DIR/php-cli.ini
 
 # Copy the downloaded tarball to /var/www/html as the www-data user
 
