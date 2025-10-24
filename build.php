@@ -37,11 +37,15 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
       '8.1',
       '8.2',
       '8.3',
-      //'8.4'
+      '8.4',
     ];
   }
+  
+  // get current version of wordpress from api
+  $wpVersion = unserialize(file_get_contents("https://api.wordpress.org/core/version-check/1.6/"))['offers'][0]['current'];
+  $args['WORDPRESS_VERSION'] = $wpVersion;
 
-  $defaults = ['CIVICRM_VERSION' => $civiVersion, 'PHP_VERSION' => 'php8.3'];
+  $defaults = ['CIVICRM_VERSION' => $civiVersion, 'PHP_VERSION' => 'php8.3', 'WORDPRESS_VERSION' => $wpVersion];
   // The default image prefix is the official one.
   $imagePrefix ??= 'civicrm';
 
@@ -112,6 +116,30 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
         'CIVICRM_VERSION',
       ],
     ],
+    [
+      'dir' => 'wordpress-base',
+      'args' => [
+        'PHP_VERSION',
+        'IMAGE_PREFIX',
+      ],
+      'tags' => [
+        'PHP_VERSION',
+      ],
+    ],
+    [
+      'dir' => 'wordpress',
+      'args' => [
+        'PHP_VERSION',
+        'IMAGE_PREFIX',
+        'WORDPRESS_VERSION',
+        'CIVICRM_VERSION',
+        'CIVICRM_DOWNLOAD_URL',
+      ],
+      'tags' => [
+        'PHP_VERSION',
+        'CIVICRM_VERSION'
+      ]
+    ]
   ];
 
   if ($imageFilter) {
