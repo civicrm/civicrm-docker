@@ -8,8 +8,8 @@ fi
 
 wp core install \
   --url=${CIVICRM_UF_BASEURL} --title=${WORDPRESS_SITE_TITLE} \
-  --admin-user=${CIVICRM_ADMIN_USER} --admin-password=${CIVICRM_ADMIN_PASS} \
-  --admin-email=${CIVICRM_ADMIN_EMAIL}
+  --admin_user=${CIVICRM_ADMIN_USER} --admin_password=${CIVICRM_ADMIN_PASS} \
+  --admin_email=${CIVICRM_ADMIN_EMAIL}
 
 cv core:install \
   --db=mysql://${CIVICRM_DB_USER}:${CIVICRM_DB_PASSWORD}@${CIVICRM_DB_HOST}:${CIVICRM_DB_PORT}/${CIVICRM_DB_NAME} \
