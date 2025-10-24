@@ -16,6 +16,10 @@ ARG WORDPRESS_VERSION
 
 RUN php -d memory_limit=-1 /usr/local/bin/wp core download --version=${WORDPRESS_VERSION} --allow-root
 
+# Create standard directories
+
+RUN mkdir wp-content/languages wp-content/uploads
+
 # Specify a CiviCRM version
 
 ARG CIVICRM_VERSION
