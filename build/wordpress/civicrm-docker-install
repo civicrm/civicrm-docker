@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
 set -ex
 
-wp core install --url=${CIVICRM_UF_BASEURL}
+# create wp-config.php file
+if [ ! -f /var/www/html/wp-config.php ]; then
+  wp config create --dbhost=${CIVICRM_DB_HOST} --dbname=${CIVICRM_DB_NAME} --dbuser=${CIVICRM_DB_USER}  --dbpass=${CIVICRM_DB_PASSWORD}
+fi
+
+wp core install \
+  --url=${CIVICRM_UF_BASEURL} --title=${WORDPRESS_SITE_TITLE} \
+  --admin-user=${CIVICRM_ADMIN_USER} --admin-password=${CIVICRM_ADMIN_PASS} \
+  --admin-email=${CIVICRM_ADMIN_EMAIL}
 
 cv core:install \
   --db=mysql://${CIVICRM_DB_USER}:${CIVICRM_DB_PASSWORD}@${CIVICRM_DB_HOST}:${CIVICRM_DB_PORT}/${CIVICRM_DB_NAME} \
   --url=${CIVICRM_UF_BASEURL} \
   -m extras.adminUser=${CIVICRM_ADMIN_USER} \
   -m extras.adminPass=${CIVICRM_ADMIN_PASS}
-
-# rm /var/www/html/private/civicrm.settings.php 
