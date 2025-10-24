@@ -8,24 +8,13 @@ ARG IMAGE_PREFIX=civicrm
 
 FROM ${IMAGE_PREFIX}/wordpress-base:php${PHP_VERSION} AS build
 
-# Use the default production PHP configuration
-
-RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php-apache.ini" \
-    && mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php-cli.ini" 
-
-# Set PHP memory limit
-
-RUN echo "memory_limit = 256M\n"  >> $PHP_INI_DIR/php-apache.ini
-
-RUN echo "memory_limit = -1\n" >> $PHP_INI_DIR/php-cli.ini
-
 # Specify a WordPress version
 
 ARG WORDPRESS_VERSION
 
 # Download WordPress
 
-RUN wp core download --version=${WORDPRESS_VERSION} --allow-root
+RUN php -d memory_limit=-1 /usr/local/bin/wp core download --version=${WORDPRESS_VERSION} --allow-root
 
 # Specify a CiviCRM version
 
@@ -42,6 +31,17 @@ RUN curl --fail --location ${CIVICRM_DOWNLOAD_URL} --output /tmp/civicrm-wordpre
     && rm /tmp/civicrm-wordpress.zip
 
 FROM ${IMAGE_PREFIX}/wordpress-base:php${PHP_VERSION}
+
+# Use the default production PHP configuration
+
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php-apache.ini" \
+    && mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php-cli.ini" 
+
+# Set PHP memory limit
+
+RUN echo "memory_limit = ${PHP_MEMORY_LIMIT:-"256M"}\n"  >> $PHP_INI_DIR/php-apache.ini
+
+RUN echo "memory_limit = -1\n" >> $PHP_INI_DIR/php-cli.ini
 
 # Copy the downloaded tarball to /var/www/html as the www-data user
 
