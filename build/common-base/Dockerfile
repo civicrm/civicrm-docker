@@ -49,6 +49,11 @@ RUN set -eux && \
     pecl install imagick && \
     docker-php-ext-enable imagick
 
+# support for redis cache
+RUN set -eux && \
+    yes '' | pecl install redis
+    docker-php-ext-enable redis
+
 RUN set -eux && \
     docker-php-ext-install bcmath && \
     docker-php-ext-install gd && \
