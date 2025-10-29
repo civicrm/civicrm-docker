@@ -24,7 +24,7 @@ Run the CiviCRM image with. `docker run --detach --publish 8000:80 civicrm/civic
 A more complete 'quick start' built with docker compose can be found in the [`example`](example) directory.
 
 1. clone this repository `git clone https://github.com/civicrm/civicrm-docker`
-2. change into the example directory `cd civicrm-docker/example`
+2. change into the example directory `cd civicrm-docker/example/civicrm`
 3. create an `.env` file with two environment variables:
 ```shell
 # .env
@@ -63,7 +63,7 @@ See also https://docs.civicrm.org/installation/en/latest/standalone/ for more de
 
 ## Volumes
 
-The `/var/www/html/public`, `/var/www/html/private` and `/var/www/html/ext` directories should be persisted. See the [`example/compose.yaml`](example/compose.yaml) file for an example.
+The `/var/www/html/public`, `/var/www/html/private` and `/var/www/html/ext` directories should be persisted. See the [`example/civicrm/compose.yaml`](example/civicrm/compose.yaml) file for an example.
 
 ## Tags
 
