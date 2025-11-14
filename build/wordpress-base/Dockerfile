@@ -18,14 +18,13 @@ FROM ${IMAGE_PREFIX}/common-base:php${PHP_VERSION}
 # Please document the reason for each installed package below.
 #
 # less is required for WP-CLI
-# mariadb-client is required for WP-CLI
+# mariadb-client is required for WP-CLI (already present in common-base)
 # unzip is required for uncompressing zip archives
 
 RUN set -eux; \
     apt-get update && \
     apt-get install -y --no-install-recommends \
     less \
-    mariadb-client \
     unzip \
     && \
     rm -rf /var/lib/apt/lists/*
