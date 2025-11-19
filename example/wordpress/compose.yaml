@@ -7,29 +7,27 @@ services:
     restart: unless-stopped
     volumes:
       - uploads:/var/www/html/wp-content/uploads
-      # - ${PWD}/wp-config.php:/var/www/html/wp-config.php  # bind mount this file to avoid reinstalling wordpress on container restart
+      - private:/var/www/private
     environment:
-      # db info
       # CIVICRM_DSN: mysql://civicrm:${MYSQL_PASSWORD}@db:3306/civicrm # Note: you can also pass database credentials as a DSN.
       CIVICRM_DB_HOST: db
       CIVICRM_DB_PORT: 3306
       CIVICRM_DB_NAME: civicrm
       CIVICRM_DB_USER: civicrm
       CIVICRM_DB_PASSWORD: ${MYSQL_PASSWORD}
-      # CiviCRM info
       CIVICRM_UF_BASEURL: http://localhost:8760
-      # WordPress info
-      WORDPRESS_DB_HOST: db 
-      WORDPRESS_DB_NAME: civicrm 
-      WORDPRESS_DB_USER: civicrm 
+      WORDPRESS_CONFIG_FILE: /var/www/private/wp-config.php
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: civicrm
+      WORDPRESS_DB_USER: civicrm
       WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
       WORDPRESS_SITE_TITLE: example-site
-      CIVICRM_ADMIN_EMAIL: admin@example.com
+      CIVICRM_ADMIN_USER: ${CIVICRM_ADMIN_USER}
+      CIVICRM_ADMIN_PASS: ${CIVICRM_ADMIN_PASS}
+      CIVICRM_ADMIN_EMAIL: ${CIVICRM_ADMIN_EMAIL}
   db:
     hostname: db
     image: mariadb:10.11
-    # ports: # expose the port to check on the db
-    #   - 8761:80
     restart: unless-stopped
     volumes:
       - db:/var/lib/mysql
@@ -40,5 +38,5 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 volumes:
   uploads:
-  # wp-config:
+  private:
   db:

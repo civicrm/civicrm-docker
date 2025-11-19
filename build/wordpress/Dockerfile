@@ -51,6 +51,10 @@ RUN echo 'memory_limit = -1\n' >> $PHP_INI_DIR/php-cli.ini
 
 COPY --from=build  --chown=www-data:www-data /var/www/html /var/www/html
 
+# Add custom WordPress config file
+
+COPY --chown=www-data:www-data wp-config.php /var/www/html
+
 # Add our own entrypoint
 
 COPY civicrm-docker-entrypoint /usr/local/bin/
