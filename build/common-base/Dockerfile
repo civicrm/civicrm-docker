@@ -25,6 +25,7 @@ FROM php:${PHP_VERSION}-apache-bookworm
 # libzip-dev is required for the PHP zip extension
 # libpng-dev is required for the PHP gd extension
 # imagemagick, libmagickwand-dev are required for PHP imagick extension
+# mariadb-client is required for cv cli
 
 RUN set -eux; \
     apt-get update && \
@@ -34,6 +35,7 @@ RUN set -eux; \
     libzip-dev \
     imagemagick \
     libmagickwand-dev \
+    mariadb-client \
     && \
     rm -rf /var/lib/apt/lists/*
 
