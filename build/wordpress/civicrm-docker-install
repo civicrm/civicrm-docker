@@ -2,7 +2,7 @@
 set -ex
 
 # create wp-config.php file
-wp config create --dbhost=${WORDPRESS_DB_HOST} --dbname=${WORDPRESS_DB_NAME} --dbuser=${WORDPRESS_DB_USER}  --dbpass=${WORDPRESS_DB_PASSWORD} --force
+wp config create --dbhost=${WORDPRESS_DB_HOST} --dbname=${WORDPRESS_DB_NAME} --dbuser=${WORDPRESS_DB_USER}  --dbpass=${WORDPRESS_DB_PASSWORD} --config-file=${WORDPRESS_CONFIG_FILE}
 
 wp core install \
   --url=${CIVICRM_UF_BASEURL} --title=${WORDPRESS_SITE_TITLE} \
