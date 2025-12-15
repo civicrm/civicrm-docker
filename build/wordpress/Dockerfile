@@ -38,12 +38,13 @@ FROM ${IMAGE_PREFIX}/wordpress-base:php${PHP_VERSION}
 
 # Use the default production PHP configuration
 
-RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php-apache.ini" \
-    && mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php-cli.ini" 
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php-cli.ini" 
 
 # Set PHP memory limit
 
-RUN echo 'memory_limit = ${PHP_MEMORY_LIMIT:-"256M"}\n'  >> $PHP_INI_DIR/php-apache2handler.ini
+RUN echo 'memory_limit = ${PHP_MEMORY_LIMIT:-"256M"}\n'  >> $PHP_INI_DIR/php.ini
 
 RUN echo 'memory_limit = -1\n' >> $PHP_INI_DIR/php-cli.ini
 
