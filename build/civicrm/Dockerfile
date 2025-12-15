@@ -2,7 +2,7 @@
 #
 # This is a ready to use CiviCRM standalone image.
 
-ARG PHP_VERSION=8.3
+ARG PHP_VERSION
 
 ARG IMAGE_PREFIX=civicrm
 

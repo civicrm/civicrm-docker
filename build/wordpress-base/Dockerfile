@@ -7,7 +7,7 @@
 # You may find this image useful as a base image for custom CiviCRM on WordPress
 # build processes.
 
-ARG PHP_VERSION=8.3
+ARG PHP_VERSION
 
 ARG IMAGE_PREFIX=civicrm
 
