@@ -38,6 +38,7 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
       '8.2',
       '8.3',
       '8.4',
+      '8.5',
     ];
   }
   
