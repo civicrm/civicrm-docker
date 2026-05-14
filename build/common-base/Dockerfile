@@ -21,17 +21,20 @@ FROM php:${PHP_VERSION}-apache-bookworm
 # 
 # Please document the reason for each installed package below.
 #
+# libfreetype-dev, libjpeg62-turbo-dev, libpng-dev, libwebp-dev are required for the PHP gd extension
 # libicu is required for the PHP intl extension
 # libzip-dev is required for the PHP zip extension
-# libpng-dev is required for the PHP gd extension
 # imagemagick, libmagickwand-dev are required for PHP imagick extension
 # mariadb-client is required for cv cli
 
 RUN set -eux; \
     apt-get update && \
     apt-get install -y --no-install-recommends \
+    libfreetype-dev \
     libicu-dev \
+    libjpeg62-turbo-dev \
     libpng-dev \
+    libwebp-dev \
     libzip-dev \
     imagemagick \
     libmagickwand-dev \
@@ -51,9 +54,13 @@ RUN set -eux && \
     pecl install imagick && \
     docker-php-ext-enable imagick
 
+# Configure gd with freetype, jpeg and webp support - required for Mosaico
+RUN set -eux && \
+    docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp && \
+    docker-php-ext-install -j$(nproc) gd
+
 RUN set -eux && \
     docker-php-ext-install bcmath && \
-    docker-php-ext-install gd && \
     docker-php-ext-install intl && \
     docker-php-ext-install mysqli && \
     docker-php-ext-install pdo_mysql && \
