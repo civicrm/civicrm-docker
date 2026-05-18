@@ -2,15 +2,23 @@
 set -ex
 
 # create wp-config.php file
-wp config create --dbhost=${WORDPRESS_DB_HOST} --dbname=${WORDPRESS_DB_NAME} --dbuser=${WORDPRESS_DB_USER}  --dbpass=${WORDPRESS_DB_PASSWORD} --config-file=${WORDPRESS_CONFIG_FILE}
+wp config create --dbhost="${WORDPRESS_DB_HOST}" --dbname="${WORDPRESS_DB_NAME}" --dbuser="${WORDPRESS_DB_USER}" --dbpass="${WORDPRESS_DB_PASSWORD}" --config-file="${WORDPRESS_CONFIG_FILE}"
+
+# Remove the ending lines from the external config file
+# The wrapper file (build/wordpress/wp-config.php) handles ABSPATH and wp-settings.php instead
+sed -i "/\/\* That's all, stop editing! Happy publishing\. \*\//,\$d" "${WORDPRESS_CONFIG_FILE}"
 
 wp core install \
-  --url=${CIVICRM_UF_BASEURL} --title=${WORDPRESS_SITE_TITLE} \
-  --admin_user=${CIVICRM_ADMIN_USER} --admin_password=${CIVICRM_ADMIN_PASS} \
-  --admin_email=${CIVICRM_ADMIN_EMAIL}
+  --url="${CIVICRM_UF_BASEURL}" --title="${WORDPRESS_SITE_TITLE}" \
+  --admin_user="${CIVICRM_ADMIN_USER}" --admin_password="${CIVICRM_ADMIN_PASS}" \
+  --admin_email="${CIVICRM_ADMIN_EMAIL}"
+
+# Correct default timezone and set default permalink
+wp option update timezone_string "UTC"
+wp rewrite structure '/%postname%/' --hard
 
 cv core:install \
-  --db=mysql://${CIVICRM_DB_USER}:${CIVICRM_DB_PASSWORD}@${CIVICRM_DB_HOST}:${CIVICRM_DB_PORT}/${CIVICRM_DB_NAME} \
-  --url=${CIVICRM_UF_BASEURL} \
-  -m extras.adminUser=${CIVICRM_ADMIN_USER} \
-  -m extras.adminPass=${CIVICRM_ADMIN_PASS}
+  --db="mysql://${CIVICRM_DB_USER}:${CIVICRM_DB_PASSWORD}@${CIVICRM_DB_HOST}:${CIVICRM_DB_PORT}/${CIVICRM_DB_NAME}" \
+  --url="${CIVICRM_UF_BASEURL}" \
+  -m "extras.adminUser=${CIVICRM_ADMIN_USER}" \
+  -m "extras.adminPass=${CIVICRM_ADMIN_PASS}"

@@ -38,15 +38,10 @@ FROM ${IMAGE_PREFIX}/wordpress-base:php${PHP_VERSION}
 
 # Use the default production PHP configuration
 
-RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
-
-RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php-cli.ini" 
-
-# Set PHP memory limit
-
-RUN echo 'memory_limit = ${PHP_MEMORY_LIMIT:-"256M"}\n'  >> $PHP_INI_DIR/php.ini
-
-RUN echo 'memory_limit = -1\n' >> $PHP_INI_DIR/php-cli.ini
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    && cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php-cli.ini" \
+    && echo 'memory_limit = ${PHP_MEMORY_LIMIT:-"256M"}\n'  >> $PHP_INI_DIR/php.ini \
+    && echo 'memory_limit = -1\n' >> $PHP_INI_DIR/php-cli.ini
 
 # Copy the downloaded tarball to /var/www/html as the www-data user
 
@@ -55,6 +50,10 @@ COPY --from=build  --chown=www-data:www-data /var/www/html /var/www/html
 # Add custom WordPress config file
 
 COPY --chown=www-data:www-data wp-config.php /var/www/html
+
+# Create private directory for config file
+
+RUN mkdir /var/www/private && chown www-data:www-data /var/www/private
 
 # Add our own entrypoint
 
@@ -65,6 +64,7 @@ COPY civicrm-docker-entrypoint /usr/local/bin/
 COPY civicrm-docker-install /usr/local/bin/
 
 ENV CIVICRM_UF=WordPress
+ENV WORDPRESS_CONFIG_FILE=/var/www/private/wp-config.php
 
 # Allow Apache port to be configurable
 

@@ -1,0 +1,19 @@
+# Development override — mount local CiviCRM code for development.
+#
+# Usage:
+#   1. Clone CiviCRM WordPress plugin to your local machine
+#   2. Update path below to point to your local CiviCRM directory
+#   3. Start: docker compose -f compose.yaml -f compose.dev.yaml up -d
+#
+# The local code will override the CiviCRM code in the image.
+# Changes to local files appear immediately in the container.
+
+services:
+  app:
+    volumes:
+      # Mount your local CiviCRM WordPress plugin directory
+      # UPDATE THIS PATH to your local CiviCRM location:
+      - /tmp/civicrm-dev/civicrm:/var/www/html/wp-content/plugins/civicrm
+
+      # For developing other plugins, add additional mounts:
+      # - /path/to/your/custom-plugin:/var/www/html/wp-content/plugins/custom-plugin
