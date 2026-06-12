@@ -6,7 +6,7 @@ services:
       - 8760:80 # CiviCRM will be available on port 8760.
     restart: unless-stopped
     volumes:
-      - uploads:/var/www/html/wp-content/uploads
+      - wpcontent:/var/www/html/wp-content
       - private:/var/www/private
     environment:
       # CIVICRM_DSN: mysql://civicrm:${MYSQL_PASSWORD}@db:3306/civicrm # Note: you can also pass database credentials as a DSN.
@@ -37,6 +37,6 @@ services:
       MYSQL_USER: civicrm
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 volumes:
-  uploads:
+  wpcontent:
   private:
   db:

@@ -6,7 +6,7 @@ Container images are published to [Docker Hub](https://hub.docker.com/u/civicrm)
 
 If you are looking for a **ready to use** CiviCRM application, use `civicrm/civicrm`. If you are looking for an image that you can use as part of a customised **Docker build process**, use `civicrm/civicrm-base`.
 
-Note: there are currently no official images for CiviCRM with WordPress, Joomla, Backdrop, or Drupal.
+Note: there are currently no official images for CiviCRM with Joomla, Backdrop, or Drupal.
 
 ## Quick start
 
@@ -163,12 +163,7 @@ flowchart BT
     E[wordpress]
     D[wordpress-base] --> E
     A --> D
-    D:::disabled
-    E:::disabled
-    classDef disabled opacity:.5
 ```
-
-Note: the WordPress images do not currently exist but are here to illustrate how we might add them in the future.
 
 ## Management
 
