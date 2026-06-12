@@ -31,7 +31,7 @@ A complete example is in the [`example/wordpress`](example/wordpress) directory.
 
 ### Using WP-CLI
 
-The image includes the WP-CLI. Make sure that you run this as the `www-data` user rather than `root`.
+The image includes the WP-CLI. Make sure that you run this as the `www-data` user rather than `root`. For example:
 
 ```shell
 docker compose exec -u www-data app wp plugin list
@@ -49,42 +49,50 @@ This overrides the image's CiviCRM plugin with your local copy — changes appea
 
 ## Environment variables
 
+The following environment variables should be set in either the `compose.yaml` file or `.env`.
+
 **CiviCRM database**:
-- `CIVICRM_DB_HOST` - Database host (e.g., `db`)
+
+- `CIVICRM_DB_HOST` - Database host (e.g. `db`)
 - `CIVICRM_DB_PORT` - Database port
 - `CIVICRM_DB_NAME` - Database name
 - `CIVICRM_DB_USER` - Database user
 - `CIVICRM_DB_PASSWORD` - Database password
-- OR `CIVICRM_DSN` (e.g., `mysql://user:pass@host:3306/database`)
+- OR `CIVICRM_DSN` (e.g. `mysql://user:pass@host:3306/database`)
 
 **WordPress database**:
-- `WORDPRESS_DB_HOST` - Database host (e.g., `db`)
-- `WORDPRESS_DB_NAME` - Database name (typically same as CiviCRM database)
-- `WORDPRESS_DB_USER` - Database user
+
+- `WORDPRESS_DB_HOST` - Database host (e.g. `db`)
+- `WORDPRESS_DB_NAME` - Database name (can be the same as CiviCRM database)
+- `WORDPRESS_DB_USER` - Database user (typically the same as CiviCRM database user)
 - `WORDPRESS_DB_PASSWORD` - Database password
-- `WORDPRESS_CONFIG_FILE` - Path to store wp-config.php (e.g., `/var/www/private/wp-config.php`)
 
 **Site configuration**:
-- `CIVICRM_UF_BASEURL` - Site URL (e.g., `http://localhost:8760`)
+
+- `CIVICRM_UF_BASEURL` - Site URL (e.g. `http://localhost:8760`)
+- `WORDPRESS_CONFIG_FILE` - Path to `wp-config.php` (default: `/var/www/private/wp-config.php`)
 - `WORDPRESS_SITE_TITLE` - WordPress site title
 
-**Installation credentials**:
+**User credentials**:
+
 - `CIVICRM_ADMIN_USER` - Admin username
 - `CIVICRM_ADMIN_PASS` - Admin password
 - `CIVICRM_ADMIN_EMAIL` - Admin email
 
 **Optional**:
+
 - `APACHE_PORT` - Override Apache port inside container (default: 80)
 - `PHP_MEMORY_LIMIT` - PHP memory limit (default: 256M)
 
 ## Installation
 
 The `civicrm/wordpress` image includes a `civicrm-docker-install` script that:
-1. Creates a `wp-config.php` file at `WORDPRESS_CONFIG_FILE` location
+
+1. Creates a `wp-config.php` file at `WORDPRESS_CONFIG_FILE`
 2. Installs WordPress core
 3. Installs CiviCRM
 
-**Prerequisites**: All environment variables must be set.
+**Prerequisites**: All environment variables must be set (see above).
 
 ```shell
 docker compose exec -u www-data app civicrm-docker-install
@@ -115,6 +123,8 @@ WordPress images use the same tagging strategy as CiviCRM Standalone:
 - `civicrm/wordpress:6.0` - Latest CiviCRM 6.0.x + recommended PHP
 - `civicrm/wordpress:6.0-php8.3` - CiviCRM 6.0.x with PHP 8.3
 - `civicrm/wordpress:php8.3` - Latest stable CiviCRM with PHP 8.3
+
+These images always have the latest version of WordPress unless you create a custom build.
 
 ### Custom builds
 
