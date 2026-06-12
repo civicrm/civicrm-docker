@@ -2,9 +2,11 @@
 
 This repository contains resources to run CiviCRM on Docker.
 
-Container images are published to [Docker Hub](https://hub.docker.com/u/civicrm) for all stable versions of CiviCRM *standalone* as part of CiviCRM's regular [release process](https://docs.civicrm.org/dev/en/latest/core/release-process/).
+Container images are published to [Docker Hub](https://hub.docker.com/u/civicrm) for all stable versions of CiviCRM _standalone_ as part of CiviCRM's regular [release process](https://docs.civicrm.org/dev/en/latest/core/release-process/).
 
 If you are looking for a **ready to use** CiviCRM application, use `civicrm/civicrm`. If you are looking for an image that you can use as part of a customised **Docker build process**, use `civicrm/civicrm-base`.
+
+If you are looking for CiviCRM on WordPress please see [WORDPRESS.md](/WORDPRESS.md).
 
 Note: there are currently no official images for CiviCRM with Joomla, Backdrop, or Drupal.
 
@@ -17,7 +19,7 @@ Note: these instructions are not designed for use in a production set up - they 
 
 ### Running the image
 
-Run the CiviCRM image with. `docker run --detach --publish 8000:80 civicrm/civicrm`. You'll see CiviCRM's installation screen at http://localhost:8000 where you will be prompted for database credentials, etc. 
+Run the CiviCRM image with. `docker run --detach --publish 8000:80 civicrm/civicrm`. You'll see CiviCRM's installation screen at http://localhost:8000 where you will be prompted for database credentials, etc.
 
 ### With docker compose
 
@@ -26,11 +28,13 @@ A more complete 'quick start' built with docker compose can be found in the [`ex
 1. clone this repository `git clone https://github.com/civicrm/civicrm-docker`
 2. change into the example directory `cd civicrm-docker/example/civicrm`
 3. create an `.env` file with two environment variables:
+
 ```shell
 # .env
 MYSQL_PASSWORD=INSECURE_PASSWORD        # change these to
 MYSQL_ROOT_PASSWORD=INSECURE_PASSWORD   # if you want to
 ```
+
 4. start the compose project with `docker compose up -d`
 5. wait for the database to initialise (you can check progress with `docker compose logs -f`).
 6. install CiviCRM with `docker compose exec -u www-data -e CIVICRM_ADMIN_USER=admin -e CIVICRM_ADMIN_PASS=password app civicrm-docker-install` (note that we are passing in the admin username and password as environment variables here - you can change them if you want to).
@@ -54,7 +58,6 @@ Note that the `CIVICRM_DB_*` can be replaced with a single `CIVICRM_DSN` variabl
 
 ## Installation
 
-
 The `civicrm/civicrm` image comes with a convenience script for installing a site: `civicrm-docker-install`. The script expects database credentials and the admin username (`CIVICRM_ADMIN_USER`) and password (`CIVICRM_ADMIN_PASS`) to be set as environment variables.
 
 It calls the standard CiviCRM installation process. See [build/civicrm/civicrm-docker-install](build/civicrm/civicrm-docker-install) for more details and the docker compose instructions above for an example of how you might call this script.
@@ -73,7 +76,7 @@ You can use tags to specify a CiviCRM version and php version, for example:
 
 ### CiviCRM version
 
-Keep up to date with the latest stable '5.x' release by using the tag `5`, which will receive all minor and patch releases. Pin your site to a minor release by using a minor version tag. For example, `6.0` will receive all patch releases for the 6.0 minor version. 
+Keep up to date with the latest stable '5.x' release by using the tag `5`, which will receive all minor and patch releases. Pin your site to a minor release by using a minor version tag. For example, `6.0` will receive all patch releases for the 6.0 minor version.
 Skip the tag to default to the latest stable release.
 
 ### PHP version
@@ -122,7 +125,7 @@ The `build.php` can help with this:
 ./build.php --php-version=8.3 --image-prefix=my-civi --skip-push
 ```
 
-If you run `docker image ls "my-civi/*"` after this, you will see something like this: 
+If you run `docker image ls "my-civi/*"` after this, you will see something like this:
 
 ```
 REPOSITORY             TAG            IMAGE ID       CREATED           SIZE
@@ -150,7 +153,7 @@ For example:
 FROM civicrm/civicrm-standalone-base:php8.3
 
 RUN curl https://whizzy.com/download/whizzy.tar.gz && \
-  tar -xf whizzy.tar.gz 
+  tar -xf whizzy.tar.gz
 ```
 
 ### Image architecture
@@ -178,7 +181,7 @@ Command options are as follows:
 - **--image-prefix=** - a custom prefix for generated images (defaults to `civicrm`)
 - **--image-filter=** - only build the specified images (comma seperated list)
 - **--php-version=** - build a single specific php version (defaults to all supported versions)
-- **--download-url=** - a specific tarball to download  
+- **--download-url=** - a specific tarball to download
 - **--builder=** - the docker build builder to use
 - **--platform=** - the platforms to build for
 - **--skip-push** - build the images but do not push them to Docker Hub
