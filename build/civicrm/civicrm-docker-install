@@ -1,10 +1,17 @@
-#!/usr/bin/env bash
-set -ex
+#!/usr/bin/env php
+<?php
 
-cv core:install \
-  --db=mysql://${CIVICRM_DB_USER}:${CIVICRM_DB_PASSWORD}@${CIVICRM_DB_HOST}:${CIVICRM_DB_PORT}/${CIVICRM_DB_NAME} \
-  --url=${CIVICRM_UF_BASEURL} \
-  -m extras.adminUser=${CIVICRM_ADMIN_USER} \
-  -m extras.adminPass=${CIVICRM_ADMIN_PASS}
+/**
+ * Install CiviCRM Standalone using the database and site settings passed in
+ * as environment variables.
+ */
 
-# rm /var/www/html/private/civicrm.settings.php 
+require_once '/usr/local/lib/civicrm-docker/install-functions.php';
+
+run([
+  'cv', 'core:install',
+  '--db=' . getDsn(),
+  '--url=' . requireEnv('CIVICRM_UF_BASEURL'),
+  '-m', 'extras.adminUser=' . getenv('CIVICRM_ADMIN_USER'),
+  '-m', 'extras.adminPass=' . getenv('CIVICRM_ADMIN_PASS'),
+]);
