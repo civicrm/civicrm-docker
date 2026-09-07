@@ -1,10 +1,30 @@
 #!/usr/bin/env bash
-set -ex
+set -e
+
+# Percent-encode a value for use inside a DSN.
+#
+# Must be rawurlencode(), not urlencode(): CiviCRM decodes DSN credentials with
+# rawurldecode(), which reads a '+' as a literal '+' rather than as a space.
+dsn_encode() {
+  CIVICRM_DSN_ENCODE_IN="${1-}" php -r 'echo rawurlencode(getenv("CIVICRM_DSN_ENCODE_IN"));'
+}
+
+if [ -n "${CIVICRM_DSN-}" ]; then
+  # Taken verbatim; the caller is responsible for encoding its credentials.
+  db_dsn="${CIVICRM_DSN}"
+else
+  : "${CIVICRM_DB_HOST:?is not set (set it, or supply a complete CIVICRM_DSN)}"
+  : "${CIVICRM_DB_NAME:?is not set (set it, or supply a complete CIVICRM_DSN)}"
+  : "${CIVICRM_DB_USER:?is not set (set it, or supply a complete CIVICRM_DSN)}"
+  db_dsn="mysql://$(dsn_encode "${CIVICRM_DB_USER}"):$(dsn_encode "${CIVICRM_DB_PASSWORD-}")@${CIVICRM_DB_HOST}:${CIVICRM_DB_PORT:-3306}/$(dsn_encode "${CIVICRM_DB_NAME}")"
+fi
+
+: "${CIVICRM_UF_BASEURL:?is not set}"
 
 cv core:install \
-  --db=mysql://${CIVICRM_DB_USER}:${CIVICRM_DB_PASSWORD}@${CIVICRM_DB_HOST}:${CIVICRM_DB_PORT}/${CIVICRM_DB_NAME} \
-  --url=${CIVICRM_UF_BASEURL} \
-  -m extras.adminUser=${CIVICRM_ADMIN_USER} \
-  -m extras.adminPass=${CIVICRM_ADMIN_PASS}
+  --db="${db_dsn}" \
+  --url="${CIVICRM_UF_BASEURL}" \
+  -m extras.adminUser="${CIVICRM_ADMIN_USER}" \
+  -m extras.adminPass="${CIVICRM_ADMIN_PASS}"
 
-# rm /var/www/html/private/civicrm.settings.php 
+# rm /var/www/html/private/civicrm.settings.php

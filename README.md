@@ -52,7 +52,9 @@ At a minimum, you should set the following environment variables:
 - `CIVICRM_DB_PASSWORD`
 - `CIVICRM_UF_BASEURL`
 
-Note that the `CIVICRM_DB_*` can be replaced with a single `CIVICRM_DSN` variable.
+`CIVICRM_DB_PORT` is optional and defaults to `3306`.
+
+Note that the `CIVICRM_DB_*` can be replaced with a single `CIVICRM_DSN` variable. A `CIVICRM_DSN` is used exactly as given, so you must percent-encode its credentials yourself. If you use the separate `CIVICRM_DB_*` variables instead, `civicrm-docker-install` percent-encodes the username, password and database name for you, and they may contain any character.
 
 **Experimental**: you can override the default apache port (in the container) by setting `APACHE_PORT`.
 
