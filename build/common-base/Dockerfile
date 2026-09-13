@@ -76,10 +76,13 @@ RUN curl -LsS https://download.civicrm.org/cv/cv.phar -o /usr/local/bin/cv \
 
 # Use the default production PHP configuration and set a memory limit
 
+ENV PHP_MEMORY_LIMIT=256M
+ENV PHP_CLI_MEMORY_LIMIT=-1
+
 RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
     && cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php-cli.ini" \
-    && echo 'memory_limit = ${PHP_MEMORY_LIMIT:-"256M"}\n'  >> $PHP_INI_DIR/php.ini \
-    && echo 'memory_limit = -1\n' >> $PHP_INI_DIR/php-cli.ini
+    && echo 'memory_limit = ${PHP_MEMORY_LIMIT}\n'  >> $PHP_INI_DIR/php.ini \
+    && echo 'memory_limit = ${PHP_CLI_MEMORY_LIMIT}\n' >> $PHP_INI_DIR/php-cli.ini
 
 # Enable apache modules. expires and headers make CiviCRM's .htaccess set cache
 # lifetimes for static assets and the X-Content-Type-Options header.
@@ -107,6 +110,14 @@ RUN sed -i -e 's/^ServerTokens .*/ServerTokens Prod/' -e 's/^ServerSignature .*/
 RUN sed -i 's/80/${APACHE_PORT}/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
 
 ENV APACHE_PORT=80
+
+# Apache MPM sizing, overridable per container (default matches the distro's)
+
+ENV APACHE_MAX_REQUEST_WORKERS=150
+
+COPY apache-conf-mpm.conf /etc/apache2/conf-available/mpm.conf
+
+RUN a2enconf mpm
 
 # Add CiviCRM specific PHP configuration
 
