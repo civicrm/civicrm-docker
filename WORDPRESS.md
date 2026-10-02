@@ -106,6 +106,8 @@ volumes:
 
 On first run, Docker automatically populates the `wpcontent` volume with the image contents (including CiviCRM). Plugins and themes installed via WordPress admin are persisted across container restarts.
 
+To apply local patches to CiviCRM core, mount them at `/var/www/patches`. See [Patching CiviCRM core](README.md#patching-civicrm-core).
+
 ## Tags
 
 WordPress images use the same tagging strategy as CiviCRM Standalone:
