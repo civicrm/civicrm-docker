@@ -68,6 +68,25 @@ See also https://docs.civicrm.org/installation/en/latest/standalone/ for more de
 
 The `/var/www/html/public`, `/var/www/html/private` and `/var/www/html/ext` directories should be persisted. See the [`example/civicrm/compose.yaml`](example/civicrm/compose.yaml) file for an example.
 
+## Patching CiviCRM core
+
+To carry local fixes to CiviCRM core without building your own image, mount a directory of patches at `/var/www/patches` (or set `CIVICRM_PATCHES_DIR`). Each `*.diff` or `*.patch` file in it is applied to core with `patch -p1` at container start, in filename order, so patches made against a [civicrm-core](https://github.com/civicrm/civicrm-core) checkout work as-is.
+
+Applied patches are recorded inside the core directory, so a restart skips them and a patch added later is applied on its own. When core is replaced, by recreating the container or upgrading CiviCRM, the patches are applied again; any whose changes are already present (eg. merged into CiviCRM since) are skipped.
+
+A patch that does not apply is left out and the container starts without it, logging a warning that names the patch. It is retried on every start until it is removed or updated.
+
+Each start rewrites `patchlog.log` in the patches directory with the status of every patch (`applied`, `applied earlier`, `already in core` or `FAILED`), so you can check it from the host:
+
+```
+2026-10-02T11:31:43+00:00 patches for /var/www/html/core
+applied earlier  01-fix-something.diff
+applied          02-fix-something-else.diff
+FAILED           03-no-longer-applies.diff
+```
+
+This works for both the `civicrm/civicrm` and `civicrm/wordpress` images.
+
 ## Tags
 
 You can use tags to specify a CiviCRM version and php version, for example:
