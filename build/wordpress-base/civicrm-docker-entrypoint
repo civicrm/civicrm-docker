@@ -11,5 +11,7 @@ if [ ! -f /var/www/html/.htaccess ] && [ -f "$WORDPRESS_CONFIG_FILE" ] \
   su www-data -s /bin/sh -c 'wp rewrite flush --hard' || echo "Could not write /var/www/html/.htaccess" >&2
 fi
 
+su www-data -s /bin/sh -c 'civicrm-docker-applypatches /var/www/html/wp-content/plugins/civicrm/civicrm /var/www/html/wp-content/uploads/civicrm/ConfigAndLog wp=/var/www/html/wp-content/plugins/civicrm'
+
 exec docker-php-entrypoint "$@"
 

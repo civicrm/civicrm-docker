@@ -9,6 +9,7 @@ services:
       - private:/var/www/html/private
       - public:/var/www/html/public
       - ext:/var/www/html/ext
+      # - ./patches:/var/www/patches:ro # Local CiviCRM core patches. Keep read-only.
     environment:
       CIVICRM_DB_HOST: db
       CIVICRM_DB_PORT: 3306
