@@ -1,0 +1,32 @@
+#!/bin/sh
+
+# Validate the Apache MPM sizing before Apache starts.
+#
+# Apache does not reject a non-numeric MaxRequestWorkers. It coerces the value
+# to 0 and then clamps it to 1, so a typo such as "2O" or a stray space leaves a
+# container serving one request at a time, with nothing but a startup warning to
+# show for it. Fail loudly instead.
+
+set -e
+
+# Unset is fine: the image supplies a default.
+if [ -z "${APACHE_MAX_REQUEST_WORKERS+set}" ]; then
+  exit 0
+fi
+
+if [ -z "${APACHE_MAX_REQUEST_WORKERS}" ]; then
+  echo "FATAL: APACHE_MAX_REQUEST_WORKERS is set but empty; unset it to use the image default" >&2
+  exit 1
+fi
+
+case "${APACHE_MAX_REQUEST_WORKERS}" in
+  *[!0-9]*)
+    echo "FATAL: APACHE_MAX_REQUEST_WORKERS must be a whole number, got '${APACHE_MAX_REQUEST_WORKERS}'" >&2
+    exit 1
+    ;;
+esac
+
+if [ "${APACHE_MAX_REQUEST_WORKERS}" -lt 1 ]; then
+  echo "FATAL: APACHE_MAX_REQUEST_WORKERS must be at least 1, got '${APACHE_MAX_REQUEST_WORKERS}'" >&2
+  exit 1
+fi

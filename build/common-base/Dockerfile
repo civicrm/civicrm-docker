@@ -87,6 +87,17 @@ COPY apache-sites-available-default.conf /etc/apache2/sites-available/000-defaul
 
 RUN a2enconf civicrm
 
+# Apache MPM sizing, overridable per container. Defaults match the distro
+# mpm_prefork.conf, so behaviour is unchanged unless these are set.
+
+ENV APACHE_MAX_REQUEST_WORKERS=150
+
+COPY apache-conf-mpm.conf /etc/apache2/conf-available/mpm.conf
+
+RUN a2enconf mpm
+
+COPY apache-check-mpm-config /usr/local/bin/
+
 # Add CiviCRM specific PHP configuration
 
 COPY php-conf-civicrm.ini ${PHP_INI_DIR}/conf.d/civicrm.ini
