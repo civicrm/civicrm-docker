@@ -1,4 +1,4 @@
-# Published image: civicrm/civicrm-wordpress
+# Published image: civicrm/wordpress
 #
 # This is a ready to use CiviCRM on WordPress image.
 
