@@ -180,8 +180,10 @@ Command options are as follows:
 
 - **--image-prefix=** - a custom prefix for generated images (defaults to `civicrm`)
 - **--image-filter=** - only build the specified images (comma seperated list)
-- **--php-version=** - build a single specific php version (defaults to all supported versions)
+- **--php-version=** - build only the specified php versions (comma seperated list, defaults to all supported versions)
+- **--civicrm-version=** - build a specific CiviCRM version (defaults to the latest stable release)
 - **--download-url=** - a specific tarball to download
+- **--download-prefix=** - replaces the `https://download.civicrm.org/` part of each image's download URL, keeping the `civicrm-<version>-<flavour>` filename. Unlike `--download-url` this gives each image the right archive, so a whole image set can be built from an alternative source in one run
 - **--builder=** - the docker build builder to use
 - **--platform=** - the platforms to build for
 - **--skip-push** - build the images but do not push them to Docker Hub
