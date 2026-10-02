@@ -1,4 +1,4 @@
-# Published image: civicrm/civicrm-base
+# Published image: civicrm/common-base
 #
 # This is a base image that serves as a foundation for other CiviCRM images. It
 # includes all the core dependencies required to run CiviCRM but does not
