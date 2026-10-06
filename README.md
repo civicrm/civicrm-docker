@@ -64,6 +64,14 @@ It calls the standard CiviCRM installation process. See [build/civicrm/civicrm-d
 
 See also https://docs.civicrm.org/installation/en/latest/standalone/ for more details on the CiviCRM Standalone installation.
 
+## No warranty: running it is up to you
+
+This setup comes without any warranty, and we accept no liability for its use. You run it at your own risk.
+
+Keeping it up to date is your job. Nothing updates itself: CiviCRM security releases reach your server only when you upgrade it. Follow [CiviCRM's security announcements](https://civicrm.org/security) to know when one is due. The server's operating system, Docker, MariaDB and the firewall are yours to maintain as well.
+
+It is also deliberately basic: there is no backup, restore or monitoring. For more complex needs, work with an [experienced hosting partner](https://civicrm.org/partners) who takes care of all of this for you.
+
 ## Volumes
 
 The `/var/www/html/public`, `/var/www/html/private` and `/var/www/html/ext` directories should be persisted. See the [`example/civicrm/compose.yaml`](example/civicrm/compose.yaml) file for an example.
