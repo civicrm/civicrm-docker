@@ -2,26 +2,26 @@
 
 This repository contains resources to run CiviCRM on Docker.
 
-Container images are published to [Docker Hub](https://hub.docker.com/u/civicrm) for all stable versions of CiviCRM _standalone_ as part of CiviCRM's regular [release process](https://docs.civicrm.org/dev/en/latest/core/release-process/).
+Container images are published to [Docker Hub](https://hub.docker.com/u/civicrm) for stable versions of CiviCRM as part of CiviCRM's regular [release process](https://docs.civicrm.org/dev/en/latest/core/release-process/). Please note that images are only published for the latest version of CiviCRM.
 
 If you are looking for a **ready to use** CiviCRM application, use `civicrm/civicrm`. If you are looking for an image that you can use as part of a customised **Docker build process**, use `civicrm/civicrm-base`.
 
 If you are looking for CiviCRM on WordPress please see [WORDPRESS.md](/WORDPRESS.md).
 
-Note: there are currently no official images for CiviCRM with Joomla, Backdrop, or Drupal.
+There are currently no official images for CiviCRM with Joomla, Backdrop, or Drupal but we welcome contributions to add these images.
 
 ## Quick start
 
-Note: these instructions are not designed for use in a production set up - they are intended to provide a minimal local environment for testing purposes. They assume you are comfortable working with docker and docker compose. If that's not the case, then see the resources below for a quick introduction:
+**Note**: these instructions provide a minimal local environment for testing purposes. You will likely want to adapt this for running in production. The instructions assume you are comfortable working with docker and docker compose. If that's not the case, then see the resources below for a quick introduction:
 
 - https://docs.docker.com/get-started/
 - https://docs.docker.com/compose/gettingstarted
 
 ### Running the image
 
-Run the CiviCRM image with. `docker run --detach --publish 8000:80 civicrm/civicrm`. You'll see CiviCRM's installation screen at http://localhost:8000 where you will be prompted for database credentials, etc.
+Run the CiviCRM image with `docker run --detach --publish 8000:80 civicrm/civicrm`. You'll see CiviCRM's installation screen at http://localhost:8000 where you will be prompted for database credentials, etc.
 
-### With docker compose
+### Using docker compose
 
 A more complete 'quick start' built with docker compose can be found in the [`example`](example) directory.
 
@@ -52,7 +52,7 @@ At a minimum, you should set the following environment variables:
 - `CIVICRM_DB_PASSWORD`
 - `CIVICRM_UF_BASEURL`
 
-Note that the `CIVICRM_DB_*` can be replaced with a single `CIVICRM_DSN` variable.
+Note that the `CIVICRM_DB_*` variables can be replaced with a single `CIVICRM_DSN` variable.
 
 **Experimental**: you can override the default apache port (in the container) by setting `APACHE_PORT`.
 
@@ -84,20 +84,19 @@ You can use tags to specify a CiviCRM version and php version, for example:
 
 ### CiviCRM version
 
-Keep up to date with the latest stable '5.x' release by using the tag `5`, which will receive all minor and patch releases. Pin your site to a minor release by using a minor version tag. For example, `6.0` will receive all patch releases for the 6.0 minor version.
-Skip the tag to default to the latest stable release.
+Unless you specify a specific version you will always get the latest stable release of CiviCRM. This is the default and recommended option.
+
+You can pin to a specific major release of CiviCRM by using the appropriate tag e.g. `6` pins to the latest release of CiviCRM 6.x.x. This will receive all minor and patch releases for this major release.
+
+Similarly you can pin to a specific minor release of CiviCRM. For example, `6.0` will receive all patch releases for the 6.0 minor version. Please note that images are only built for the latest version of CiviCRM, so if you pin to a minor version of CiviCRM you will not receive any updates when the next minor version is released. This means that packages in the image (e.g. PHP and Apache) will no longer receive updates. For this reason pinning to a minor version is not recommended.
+
+CiviCRM ESR is not currently supported but please get in touch if you'd be interested in adding this.
 
 ### PHP version
 
 Images are published for all supported versions of PHP. Specify a php version with a tag like `php8.3`.
 
 Skip the tag to default to the [the most recent version recommended by CiviCRM](https://docs.civicrm.org/installation/en/latest/general/requirements/#php-version).
-
-### Extended support release
-
-**WORK IN PROGRESS**
-
-Subscribers to the ESR should soon be able to download images for the ESR from a private registry on https://lab.civicrm.org.
 
 ## Building images
 

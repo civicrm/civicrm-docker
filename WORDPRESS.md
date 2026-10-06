@@ -6,9 +6,9 @@ If you are looking for a **ready to use** WordPress + CiviCRM application, use `
 
 ## Quick start
 
-**Note**: These instructions are for testing purposes, not production deployment.
+**Note**: these instructions provide a minimal local environment for testing purposes. You will likely want to adapt this for running in production.
 
-### With docker compose
+### Using docker compose
 
 A complete example is in the [`example/wordpress`](example/wordpress) directory.
 
