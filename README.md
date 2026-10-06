@@ -2,7 +2,7 @@
 
 This repository contains resources to run CiviCRM on Docker.
 
-Container images are published to [Docker Hub](https://hub.docker.com/u/civicrm) for stable versions of CiviCRM as part of CiviCRM's regular [release process](https://docs.civicrm.org/dev/en/latest/core/release-process/). Please note that images are only published for the latest version of CiviCRM.
+Container images are published to [Docker Hub](https://hub.docker.com/u/civicrm) as part of CiviCRM's regular [release process](https://docs.civicrm.org/dev/en/latest/core/release-process/). Please note that images are only published for the latest version of CiviCRM. It may take up to 24 hours for the new image to be released.
 
 If you are looking for a **ready to use** CiviCRM application, use `civicrm/civicrm`. If you are looking for an image that you can use as part of a customised **Docker build process**, use `civicrm/civicrm-base`.
 
