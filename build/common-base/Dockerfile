@@ -15,7 +15,7 @@
 
 ARG PHP_VERSION=8.3
 
-FROM php:${PHP_VERSION}-apache-bookworm
+FROM php:${PHP_VERSION}-apache-trixie
 
 # Install required packages (including those required for PHP extensions).
 # 
