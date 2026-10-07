@@ -51,7 +51,7 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
 
   // Make sure we have the latest base image before we get started.
   foreach ($phpVersions as $phpVersion) {
-    $taskr->passthru('docker pull php:{{0}}-apache-bookworm', [
+    $taskr->passthru('docker pull php:{{0}}-apache-trixie', [
       $phpVersion,
     ]);
   }
