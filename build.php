@@ -40,7 +40,7 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
       '8.5',
     ];
   }
-  
+
   // get current version of wordpress from api
   $wpVersion = unserialize(file_get_contents("https://api.wordpress.org/core/version-check/1.6/"))['offers'][0]['current'];
   $args['WORDPRESS_VERSION'] = $wpVersion;
@@ -137,9 +137,9 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
       ],
       'tags' => [
         'PHP_VERSION',
-        'CIVICRM_VERSION'
-      ]
-    ]
+        'CIVICRM_VERSION',
+      ],
+    ],
   ];
 
   if ($imageFilter) {
