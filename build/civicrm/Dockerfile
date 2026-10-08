@@ -35,6 +35,12 @@ RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
 
 COPY --from=build  --chown=www-data:www-data /var/www/html/civicrm-standalone /var/www/html
 
+# Add CiviCRM Standalone specific Apache configuration
+
+COPY apache-conf-civicrm-standalone.conf /etc/apache2/conf-available/civicrm-standalone.conf
+
+RUN a2enconf civicrm-standalone
+
 # Add our own entrypoint
 
 COPY civicrm-docker-entrypoint /usr/local/bin/

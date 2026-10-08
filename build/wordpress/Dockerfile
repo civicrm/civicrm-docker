@@ -59,6 +59,12 @@ COPY --chown=www-data:www-data wp-cli.yml /var/www/.wp-cli/config.yml
 
 RUN mkdir /var/www/private && chown www-data:www-data /var/www/private
 
+# Add CiviCRM on WordPress specific Apache configuration
+
+COPY apache-conf-civicrm-wordpress.conf /etc/apache2/conf-available/civicrm-wordpress.conf
+
+RUN a2enconf civicrm-wordpress
+
 # Add our own entrypoint
 
 COPY civicrm-docker-entrypoint /usr/local/bin/
