@@ -5,5 +5,11 @@ set -e
 # TODO: run the installer if we are not installed and CIVICRM_AUTO_INSTALL=1
 # TODO: run the upgrade if required and CIVICRM_AUTO_UPDATE=1
 
+# The docroot is not a volume: restore .htaccess after the container is recreated.
+if [ ! -f /var/www/html/.htaccess ] && [ -f "$WORDPRESS_CONFIG_FILE" ] \
+  && su www-data -s /bin/sh -c 'wp core is-installed' >/dev/null 2>&1; then
+  su www-data -s /bin/sh -c 'wp rewrite flush --hard' || echo "Could not write /var/www/html/.htaccess" >&2
+fi
+
 exec docker-php-entrypoint "$@"
 

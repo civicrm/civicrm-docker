@@ -106,6 +106,8 @@ volumes:
 
 On first run, Docker automatically populates the `wpcontent` volume with the image contents (including CiviCRM). Plugins and themes installed via WordPress admin are persisted across container restarts.
 
+`/var/www/html/.htaccess` is not persisted: the entrypoint regenerates it on start, so manual edits are lost.
+
 ## Tags
 
 WordPress images use the same tagging strategy as CiviCRM Standalone:
