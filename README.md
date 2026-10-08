@@ -167,6 +167,17 @@ flowchart BT
     A --> D
 ```
 
+### Testing an image
+
+The scripts in `tests/` install CiviCRM from an image and check how it is served. They exit non-zero if a check fails.
+
+```shell
+IMAGE=my-civi/civicrm:php8.5 tests/standalone.sh
+IMAGE=my-civi/wordpress:php8.5 tests/wordpress.sh
+```
+
+Set `PORT` to run them on a different host port (defaults 8762 and 8763).
+
 ## Management
 
 The `./build.php` script can be used to build images.
