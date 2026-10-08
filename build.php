@@ -22,6 +22,9 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
   // Create an array of all potential build arguments
   $args = [];
 
+  // Debian version
+  $debianVersion = 'trixie';
+
   // CiviCRM version
   $civiVersion =
     $args['CIVICRM_VERSION'] =
@@ -51,8 +54,9 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
 
   // Make sure we have the latest base image before we get started.
   foreach ($phpVersions as $phpVersion) {
-    $taskr->passthru('docker pull php:{{0}}-apache-trixie', [
+    $taskr->passthru('docker pull php:{{0}}-apache-{{1}}', [
       $phpVersion,
+      $debianVersion,
     ]);
   }
 
@@ -87,7 +91,7 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
     [
       'dir' => 'common-base',
       'args' => [
-        'PHP_VERSION',
+        'IMAGE_TAG',
       ],
       'tags' => [
         'PHP_VERSION',
@@ -158,6 +162,7 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
     foreach ($phpVersions as $phpVersion) {
 
       $args['PHP_VERSION'] = $phpVersion;
+      $args['IMAGE_TAG'] = (isset($phpVersion) ? "$phpVersion-" : '') . 'apache' . (isset($debianVersion) ? "-$debianVersion" : '');
       $parts = array_intersect_key(['CIVICRM_VERSION' => $civiVersion, 'PHP_VERSION' => 'php' . $phpVersion], array_flip($image['tags']));
       $buildArgs = getBuildArgs($args, $image);
       $tagFlags = getTagFlags("{$imagePrefix}/{$image['dir']}", $parts, $defaults);
