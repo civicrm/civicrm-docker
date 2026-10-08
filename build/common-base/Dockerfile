@@ -88,6 +88,10 @@ COPY apache-sites-available-default.conf /etc/apache2/sites-available/000-defaul
 
 RUN a2enconf civicrm
 
+# Do not advertise the Apache and OS version in headers and error pages.
+
+RUN sed -i -e 's/^ServerTokens .*/ServerTokens Prod/' -e 's/^ServerSignature .*/ServerSignature Off/' /etc/apache2/conf-available/security.conf
+
 # Add CiviCRM specific PHP configuration
 
 COPY php-conf-civicrm.ini ${PHP_INI_DIR}/conf.d/civicrm.ini
