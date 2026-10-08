@@ -1,22 +1,29 @@
 # shellcheck shell=bash
 # Shared helpers for tests/standalone.sh and tests/wordpress.sh.
-# The calling script sets IMAGE, PORT and COMPOSE_FILE before sourcing this file.
+# The calling script sets IMAGE, BUILD, PORT and COMPOSE_FILE before sourcing this file.
 
 # No "set -e": a failing check must not stop the checks after it.
 set -uo pipefail
 
 cd "$(dirname "$0")" || exit 2
+PHP_VERSION="${PHP_VERSION:-8.5}"
 export IMAGE PORT COMPOSE_FILE
 export COMPOSE_PROJECT_NAME="civicrm-docker-test-$PORT"
 BASE="http://localhost:$PORT"
 COOKIES="$(mktemp)"
 LOG="$(mktemp)"
 FAILURES=0
+# Prefix for images built by build_image; per port, so that parallel runs do not remove each other's images.
+BUILT_PREFIX=""
 
 # Remove containers, volumes and temp files however the script ends.
 cleanup() {
   docker compose down --volumes --remove-orphans >/dev/null 2>&1
   rm -f "$COOKIES" "$LOG"
+  if [ -n "$BUILT_PREFIX" ]; then
+    docker images --filter reference="$BUILT_PREFIX/*" --format '{{.Repository}}:{{.Tag}}' \
+      | xargs docker image rm >/dev/null 2>&1
+  fi
 }
 trap cleanup EXIT
 
@@ -66,7 +73,18 @@ status_of() {
   curl --silent --max-time 30 --cookie "$COOKIES" --output /dev/null --write-out '%{http_code}' "$BASE/$1"
 }
 
+# Builds the images listed in BUILD (dependencies first) from this checkout; the last one is tested
+# and all of them are removed again at the end.
+build_image() {
+  if [ ! -f ../vendor/autoload.php ]; then die "build.php needs 'composer install' first"; fi
+  BUILT_PREFIX="$COMPOSE_PROJECT_NAME"
+  ../build.php --skip-push --image-prefix="$BUILT_PREFIX" --php-version="$PHP_VERSION" \
+    --image-filter="$BUILD" || die "build.php failed"
+  IMAGE="$BUILT_PREFIX/${BUILD##*,}:php$PHP_VERSION"
+}
+
 start_and_install() {
+  if [ -z "$IMAGE" ]; then build_image; fi
   echo "Image: $IMAGE"
   docker compose up --detach --quiet-pull >"$LOG" 2>&1 || die "docker compose up failed"
   docker compose exec -T -u www-data app civicrm-docker-install >"$LOG" 2>&1 || die "civicrm-docker-install failed"

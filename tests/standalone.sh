@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Installs CiviCRM Standalone from an image and checks how Apache and PHP serve it.
-# Usage: IMAGE=civicrm/civicrm:6.19-php8.5 tests/standalone.sh
-IMAGE="${IMAGE:-civicrm/civicrm:latest}"
+# Builds the image from this checkout; IMAGE tests an existing one instead.
+# Usage: tests/standalone.sh   or   IMAGE=civicrm/civicrm:6.19-php8.5 tests/standalone.sh
+IMAGE="${IMAGE:-}"
+BUILD=common-base,civicrm-base,civicrm
 PORT="${PORT:-8762}"
 COMPOSE_FILE=compose.yaml
 # shellcheck source-path=SCRIPTDIR

@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Installs WordPress and CiviCRM from an image and checks how Apache and PHP serve them.
-# Usage: IMAGE=civicrm/wordpress:6.19-php8.5 tests/wordpress.sh
-IMAGE="${IMAGE:-civicrm/wordpress:latest}"
+# Builds the image from this checkout; IMAGE tests an existing one instead.
+# Usage: tests/wordpress.sh   or   IMAGE=civicrm/wordpress:6.19-php8.5 tests/wordpress.sh
+IMAGE="${IMAGE:-}"
+BUILD=common-base,wordpress-base,wordpress
 PORT="${PORT:-8763}"
 COMPOSE_FILE=compose.yaml:compose.wordpress.yaml
 # shellcheck source-path=SCRIPTDIR
