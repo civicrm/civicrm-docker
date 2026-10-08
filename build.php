@@ -27,12 +27,11 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
   // Debian version
   $debianVersion = 'trixie';
 
-  // CiviCRM version. Latest stable is tracked separately because the
-  // unversioned tags alias it, whichever version this run builds.
-  $latestVersion = trim(file_get_contents('https://latest.civicrm.org/stable.php'));
-  $civiVersion =
+  // Build the CiviCRM version supplied or the latest
+  $latestCivicrmVersion = trim(file_get_contents('https://latest.civicrm.org/stable.php'));
+  $buildCivicrmVersion =
     $args['CIVICRM_VERSION'] =
-    $civicrmVersion ?: $latestVersion;
+    $civicrmVersion ?: $latestCivicrmVersion;
 
   // If PHP versions are supplied build for those, else build all
   // recommended PHP versions.
@@ -52,7 +51,7 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
   $wpVersion = unserialize(file_get_contents("https://api.wordpress.org/core/version-check/1.6/"))['offers'][0]['current'];
   $args['WORDPRESS_VERSION'] = $wpVersion;
 
-  $defaults = ['CIVICRM_VERSION' => $latestVersion, 'PHP_VERSION' => 'php8.5', 'WORDPRESS_VERSION' => $wpVersion];
+  $defaults = ['CIVICRM_VERSION' => $latestCivicrmVersion, 'PHP_VERSION' => 'php8.5', 'WORDPRESS_VERSION' => $wpVersion];
   // The default image prefix is the official one.
   $imagePrefix ??= 'civicrm';
 
@@ -166,8 +165,8 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
 
       $args['PHP_VERSION'] = $phpVersion;
       $args['IMAGE_TAG'] = (isset($phpVersion) ? "$phpVersion-" : '') . 'apache' . (isset($debianVersion) ? "-$debianVersion" : '');
-      $args['CIVICRM_DOWNLOAD_URL'] = getDownloadUrl($image, $downloadUrl, $downloadPrefix, $civiVersion);
-      $parts = array_intersect_key(['CIVICRM_VERSION' => $civiVersion, 'PHP_VERSION' => 'php' . $phpVersion], array_flip($image['tags']));
+      $args['CIVICRM_DOWNLOAD_URL'] = getDownloadUrl($image, $downloadUrl, $downloadPrefix, $buildCivicrmVersion);
+      $parts = array_intersect_key(['CIVICRM_VERSION' => $buildCivicrmVersion, 'PHP_VERSION' => 'php' . $phpVersion], array_flip($image['tags']));
       $buildArgs = getBuildArgs($args, $image);
       $tagFlags = getTagFlags("{$imagePrefix}/{$image['dir']}", $parts, $defaults, empty($civicrmVersion));
 
@@ -189,7 +188,7 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
  *
  * Returns NULL to leave CIVICRM_DOWNLOAD_URL unset, so the Dockerfile default applies.
  */
-function getDownloadUrl($image, $downloadUrl, $downloadPrefix, $civiVersion) {
+function getDownloadUrl($image, $downloadUrl, $downloadPrefix, $buildCivicrmVersion) {
   if (empty($image['download'])) {
     return NULL;
   }
@@ -197,7 +196,7 @@ function getDownloadUrl($image, $downloadUrl, $downloadPrefix, $civiVersion) {
     return $downloadUrl;
   }
   if ($downloadPrefix) {
-    return "{$downloadPrefix}civicrm-{$civiVersion}-{$image['download']}";
+    return "{$downloadPrefix}civicrm-{$buildCivicrmVersion}-{$image['download']}";
   }
   return NULL;
 }
@@ -225,18 +224,17 @@ function getTagFlags($name, $parts, $defaults, $isLatest) {
     }
   }
 
-  // Add Civi version aliases
-  if (isset($parts['CIVICRM_VERSION'])) {
+  // Add CiviCRM version aliases if we are building the latest version of CiviCRM
+  if (($isLatest) && isset($parts['CIVICRM_VERSION'])) {
     $versionParts = explode('.', $parts['CIVICRM_VERSION']);
     $major = $versionParts[0];
     $minor = "$versionParts[0].$versionParts[1]";
-  }
 
-  foreach ($tags as $tag) {
-    // Only tag the major and minor versions if we are building the latest version of CiviCRM
-    if (($isLatest) && !empty($tag['CIVICRM_VERSION'])) {
-      $tags[] = ['CIVICRM_VERSION' => $major] + $tag;
-      $tags[] = ['CIVICRM_VERSION' => $minor] + $tag;
+    foreach ($tags as $tag) {
+      if (!empty($tag['CIVICRM_VERSION'])) {
+        $tags[] = ['CIVICRM_VERSION' => $major] + $tag;
+        $tags[] = ['CIVICRM_VERSION' => $minor] + $tag;
+      }
     }
   }
 
