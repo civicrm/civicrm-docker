@@ -1,0 +1,85 @@
+#!/bin/sh
+
+# Apply local patches to CiviCRM core at container start.
+#
+# Usage: civicrm-docker-applypatches <core-dir>
+#
+# Each *.diff or *.patch file in CIVICRM_PATCHES_DIR (default /var/www/patches)
+# is applied to <core-dir> with `patch -p1`, in filename order.
+#
+# Applied patches are recorded in a file inside <core-dir>, so the record goes
+# whenever core is replaced (a recreated container, or a CiviCRM upgrade in a
+# persistent volume) and the patches are then applied afresh. A patch that does
+# not apply is left out with a warning and not recorded, so it is retried on
+# every start.
+#
+# Each start rewrites patchlog.log in the patches directory with the status of
+# every patch, so it can be checked from the host without the container logs.
+
+set -e
+
+core_dir="$1"
+patches_dir="${CIVICRM_PATCHES_DIR:-/var/www/patches}"
+state_file="${core_dir}/.civicrm-docker-patches"
+log_file="${patches_dir}/patchlog.log"
+
+if [ ! -d "${patches_dir}" ]; then
+  exit 0
+fi
+
+report="$(mktemp)"
+trap 'rm -f "${report}"' EXIT
+
+# Write the report to the container log and to patchlog.log. The patches
+# directory may be mounted read-only, which is not worth failing the start for.
+finish() {
+  cat "${report}"
+  if ! cat "${report}" 2> /dev/null > "${log_file}"; then
+    echo "WARNING: could not write ${log_file}" >&2
+  fi
+}
+
+echo "$(date -Iseconds) patches for ${core_dir}" > "${report}"
+
+if [ ! -d "${core_dir}" ]; then
+  echo "WARNING: ${core_dir} not found, not applying patches" >> "${report}"
+  finish
+  exit 0
+fi
+
+# Patch as the owner of the core files, so the files patch rewrites or creates
+# keep that ownership.
+as_owner=""
+if [ "$(id -u)" = 0 ]; then
+  as_owner="setpriv --reuid=$(stat -c %u "${core_dir}") --regid=$(stat -c %g "${core_dir}") --clear-groups"
+fi
+
+for patch_file in "${patches_dir}"/*; do
+  case "${patch_file}" in
+    *.diff|*.patch) ;;
+    *) continue ;;
+  esac
+  [ -f "${patch_file}" ] || continue
+
+  name="$(basename "${patch_file}")"
+  record="$(sha256sum "${patch_file}" | cut -d ' ' -f 1)  ${name}"
+
+  if [ -f "${state_file}" ] && grep -qxF "${record}" "${state_file}"; then
+    status="applied earlier"
+  elif $as_owner patch -d "${core_dir}" -p1 --forward --batch --silent --dry-run -i "${patch_file}" > /dev/null; then
+    $as_owner patch -d "${core_dir}" -p1 --forward --batch --silent --no-backup-if-mismatch -i "${patch_file}"
+    status="applied"
+  elif patch -d "${core_dir}" -p1 --reverse --batch --silent --dry-run -i "${patch_file}" > /dev/null; then
+    status="already in core"
+  else
+    status="FAILED"
+    echo "WARNING: patch ${patch_file} does not apply to ${core_dir}, skipping it" >&2
+  fi
+
+  if [ "${status}" = "applied" ] || [ "${status}" = "already in core" ]; then
+    echo "${record}" | $as_owner tee -a "${state_file}" > /dev/null
+  fi
+  printf '%-16s %s\n' "${status}" "${name}" >> "${report}"
+done
+
+finish

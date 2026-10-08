@@ -91,4 +91,8 @@ RUN a2enconf civicrm
 
 COPY php-conf-civicrm.ini ${PHP_INI_DIR}/conf.d/civicrm.ini
 
+# Add a script that applies local CiviCRM core patches at container start
+
+COPY civicrm-docker-applypatches /usr/local/bin/
+
 RUN chown www-data:www-data /var/www
