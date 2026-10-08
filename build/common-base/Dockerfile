@@ -71,9 +71,10 @@ RUN set -eux && \
 RUN curl -LsS https://download.civicrm.org/cv/cv.phar -o /usr/local/bin/cv \
     && chmod +x /usr/local/bin/cv
 
-# Enable apache rewrite module
+# Enable apache modules. expires and headers make CiviCRM's .htaccess set cache
+# lifetimes for static assets and the X-Content-Type-Options header.
 
-RUN a2enmod rewrite remoteip
+RUN a2enmod rewrite remoteip expires headers
 
 # Add CiviCRM specific Apache configuration 
 
