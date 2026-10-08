@@ -51,7 +51,7 @@ COPY --from=build  --chown=www-data:www-data /var/www/html /var/www/html
 
 COPY --chown=www-data:www-data wp-config.php /var/www/html
 
-# Lets `wp rewrite --hard` write .htaccess
+# Add wp-cli config to allow it to write the `.htaccess` file
 
 COPY --chown=www-data:www-data wp-cli.yml /var/www/.wp-cli/config.yml
 
