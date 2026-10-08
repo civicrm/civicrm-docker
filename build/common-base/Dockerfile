@@ -91,4 +91,10 @@ RUN a2enconf civicrm
 
 COPY php-conf-civicrm.ini ${PHP_INI_DIR}/conf.d/civicrm.ini
 
+# Introduce healthcheck
+
+COPY civicrm-docker-healthcheck /usr/local/bin/
+
+HEALTHCHECK --interval=30s --timeout=4s CMD civicrm-docker-healthcheck
+
 RUN chown www-data:www-data /var/www
