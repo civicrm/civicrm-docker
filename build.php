@@ -45,13 +45,13 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
   $wpVersion = unserialize(file_get_contents("https://api.wordpress.org/core/version-check/1.6/"))['offers'][0]['current'];
   $args['WORDPRESS_VERSION'] = $wpVersion;
 
-  $defaults = ['CIVICRM_VERSION' => $civiVersion, 'PHP_VERSION' => 'php8.4', 'WORDPRESS_VERSION' => $wpVersion];
+  $defaults = ['CIVICRM_VERSION' => $civiVersion, 'PHP_VERSION' => 'php8.5', 'WORDPRESS_VERSION' => $wpVersion];
   // The default image prefix is the official one.
   $imagePrefix ??= 'civicrm';
 
   // Make sure we have the latest base image before we get started.
   foreach ($phpVersions as $phpVersion) {
-    $taskr->passthru('docker pull php:{{0}}-apache-bookworm', [
+    $taskr->passthru('docker pull php:{{0}}-apache-trixie', [
       $phpVersion,
     ]);
   }
