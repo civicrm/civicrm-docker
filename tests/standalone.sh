@@ -50,4 +50,7 @@ civicrm/a/
 $links"
 check_opcache_headroom
 
+reinstall_in_german /var/www/html/private/l10n
+expect_status civicrm/login 200 "the German site serves /civicrm/login"
+
 finish

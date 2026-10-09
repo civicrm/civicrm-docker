@@ -62,6 +62,8 @@ The `civicrm/civicrm` image comes with a convenience script for installing a sit
 
 It calls the standard CiviCRM installation process. See [build/civicrm/civicrm-docker-install](build/civicrm/civicrm-docker-install) for more details and the docker compose instructions above for an example of how you might call this script.
 
+Set `CIVICRM_LANG` (for example `de_DE`) to install CiviCRM in another language; where CiviCRM ships regional defaults for it, such as currency and formats, those are applied too. The installation downloads the translation from download.civicrm.org, so the container needs internet access at that point. Later updates of the translation, including after an image upgrade, and translations for extensions are not downloaded; the [Update Language Files](https://civicrm.org/extensions/update-language-files) extension takes care of both.
+
 See also https://docs.civicrm.org/installation/en/latest/standalone/ for more details on the CiviCRM Standalone installation.
 
 ## Volumes

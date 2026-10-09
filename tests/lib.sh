@@ -8,6 +8,8 @@ set -uo pipefail
 cd "$(dirname "$0")" || exit 2
 PHP_VERSION="${PHP_VERSION:-8.5}"
 export IMAGE PORT COMPOSE_FILE
+# A language set in the calling shell would turn the English checks into German ones.
+unset CIVICRM_LANG WORDPRESS_LANG
 export COMPOSE_PROJECT_NAME="civicrm-docker-test-$PORT"
 BASE="http://localhost:$PORT"
 COOKIES="$(mktemp)"
@@ -63,6 +65,16 @@ run_in_app() {
   docker compose exec -T -u www-data app sh -c "$1"
 }
 
+# Runs PHP in CiviCRM with cv.
+civi_eval() {
+  docker compose exec -T -u www-data app cv ev "$1"
+}
+
+# Removes containers and volumes, so that the next start begins with an empty site.
+remove_site() {
+  docker compose down --volumes >"$LOG" 2>&1 || die "removing the site failed"
+}
+
 # Prints the response body of a path, sending the login cookie.
 get() {
   curl --silent --max-time 30 --cookie "$COOKIES" "$BASE/$1"
@@ -83,10 +95,14 @@ build_image() {
   IMAGE="$BUILT_PREFIX/${BUILD##*,}:php$PHP_VERSION"
 }
 
-start_and_install() {
+start_site() {
   if [ -z "$IMAGE" ]; then build_image; fi
   echo "Image: $IMAGE"
   docker compose up --detach --quiet-pull >"$LOG" 2>&1 || die "docker compose up failed"
+}
+
+start_and_install() {
+  start_site
   docker compose exec -T -u www-data app civicrm-docker-install >"$LOG" 2>&1 || die "civicrm-docker-install failed"
 }
 
@@ -230,4 +246,21 @@ check_opcache_headroom() {
   fi
   expect_equal "OPcache is not full" "$(probe opcache_full)" no
   expect_equal "OPcache did not restart" "$(probe opcache_restarts)" 0
+}
+
+# Installs a new site with CiviCRM in German; the installer downloads the translations into a persisted directory.
+reinstall_in_german() {
+  remove_site
+  export CIVICRM_LANG=de_DE
+  start_and_install
+  expect_equal "CiviCRM is installed in German" "$(civi_eval 'echo ts("Contacts");')" Kontakte
+  expect_equal "CiviCRM's data is installed in German" \
+    "$(civi_eval 'echo CRM_Core_PseudoConstant::getLabel("CRM_Activity_BAO_Activity", "activity_type_id",
+      CRM_Core_PseudoConstant::getKey("CRM_Activity_BAO_Activity", "activity_type_id", "Meeting"));')" \
+    Treffen/Besprechung
+  if run_in_app "test -f $1/de_DE/LC_MESSAGES/civicrm.mo"; then
+    pass "the translation is in $1"
+  else
+    fail "the translation is in $1"
+  fi
 }

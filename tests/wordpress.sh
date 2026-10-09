@@ -52,4 +52,38 @@ docker compose up --detach --force-recreate app >"$LOG" 2>&1 || die "recreating 
 wait_for wp-login.php
 expect_status sample-page/ 200 "pretty permalinks still work after recreating the container"
 
+# A language pack that cannot be downloaded stops the installation before WordPress is installed.
+remove_site
+start_site
+if docker compose exec -T -u www-data -e WORDPRESS_LANG=xx_XX app civicrm-docker-install >"$LOG" 2>&1; then
+  fail "the installation stops when the WordPress language pack cannot be downloaded"
+else
+  pass "the installation stops when the WordPress language pack cannot be downloaded"
+fi
+if grep -q 'WordPress language pack for xx_XX\.' "$LOG"; then
+  pass "the error names the WordPress language"
+else
+  fail "the error names the WordPress language"
+fi
+expect_equal "WordPress stays uninstalled" \
+  "$(docker compose exec -T db mariadb -ucivicrm -ptest civicrm --skip-column-names -e "SHOW TABLES LIKE 'wp_options'")" ""
+
+reinstall_in_german "$CIVICRM_FILES/l10n"
+expect_equal "WordPress follows CIVICRM_LANG" \
+  "$(run_in_app 'wp language core list --status=active --field=language')" de_DE
+
+# WordPress has no ja_JP, only ja.
+remove_site
+start_site
+docker compose exec -T -u www-data -e CIVICRM_LANG=ja_JP app civicrm-docker-install >"$LOG" 2>&1 \
+  || die "civicrm-docker-install failed with CIVICRM_LANG=ja_JP"
+expect_equal "WordPress falls back to the language without the region" \
+  "$(run_in_app 'wp language core list --status=active --field=language')" ja
+
+# CiviCRM takes WordPress's language unless told otherwise: an English WordPress shows that CIVICRM_LANG reaches cv.
+export WORDPRESS_LANG=en_US
+reinstall_in_german "$CIVICRM_FILES/l10n"
+expect_equal "WORDPRESS_LANG overrides CIVICRM_LANG for WordPress" \
+  "$(run_in_app 'wp language core list --status=active --field=language')" en_US
+
 finish
