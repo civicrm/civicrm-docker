@@ -9,7 +9,7 @@ COMPOSE_FILE=compose.yaml
 # shellcheck source-path=SCRIPTDIR
 source "$(dirname "$0")/lib.sh"
 
-start_and_install
+start_and_install civicrm/login
 install_probe
 
 # private/ holds the settings file, logs and uploads: nothing in it may be served.
@@ -49,5 +49,7 @@ civicrm/contact/add?reset=1&ct=Individual
 civicrm/a/
 $links"
 check_opcache_headroom
+
+check_auto_install /var/www/html/private/civicrm.settings.php civicrm/login
 
 finish
