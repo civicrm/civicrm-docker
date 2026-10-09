@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
-set -ex
+set -e
+
+# cv writes the settings file before it finds existing tables and aborts: do not leave one behind.
+settings=/var/www/html/private/civicrm.settings.php
+if [ ! -f "$settings" ]; then
+  trap 'rm -f "$settings"' ERR
+fi
 
 cv core:install \
   --db=mysql://${CIVICRM_DB_USER}:${CIVICRM_DB_PASSWORD}@${CIVICRM_DB_HOST}:${CIVICRM_DB_PORT}/${CIVICRM_DB_NAME} \

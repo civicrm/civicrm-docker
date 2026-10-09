@@ -13,6 +13,7 @@ services:
       CIVICRM_ADMIN_USER: admin
       CIVICRM_ADMIN_PASS: password
       CIVICRM_ADMIN_EMAIL: admin@example.org
+      CIVICRM_AUTO_INSTALL: 1
     depends_on:
       db:
         condition: service_healthy

@@ -83,20 +83,27 @@ build_image() {
   IMAGE="$BUILT_PREFIX/${BUILD##*,}:php$PHP_VERSION"
 }
 
+# Starts the site and waits for a path to answer. The entrypoint installs CiviCRM first
+# (CIVICRM_AUTO_INSTALL in compose.yaml).
 start_and_install() {
   if [ -z "$IMAGE" ]; then build_image; fi
   echo "Image: $IMAGE"
   docker compose up --detach --quiet-pull >"$LOG" 2>&1 || die "docker compose up failed"
-  docker compose exec -T -u www-data app civicrm-docker-install >"$LOG" 2>&1 || die "civicrm-docker-install failed"
+  wait_for "$1"
 }
 
-# Waits up to a minute for a path to answer.
+# Waits up to five minutes for a path to answer; stops the test if the app container exits.
 wait_for() {
-  for _ in $(seq 30); do
+  for _ in $(seq 150); do
     if [ "$(status_of "$1")" != 000 ]; then return; fi
+    if [ "$(docker compose ps --format '{{.State}}' app)" != running ]; then
+      docker compose logs app >"$LOG" 2>&1
+      die "the app container stopped"
+    fi
     sleep 2
   done
-  die "the site did not answer within a minute"
+  docker compose logs app >"$LOG" 2>&1
+  die "the site did not answer within five minutes"
 }
 
 # Puts a PHP file into the docroot that reports settings as the web server sees them,
@@ -230,4 +237,41 @@ check_opcache_headroom() {
   fi
   expect_equal "OPcache is not full" "$(probe opcache_full)" no
   expect_equal "OPcache did not restart" "$(probe opcache_restarts)" 0
+}
+
+# A restart must not reinstall. Without its settings file, a database that already holds CiviCRM
+# must stop the container rather than get a new settings file with new keys.
+check_auto_install() {
+  local settings="$1" path="$2"
+  local before container state copy_error
+  before="$(run_in_app "sha256sum $settings")"
+  docker compose restart app >"$LOG" 2>&1 || die "restarting the app container failed"
+  wait_for "$path"
+  expect_equal "a restart keeps the settings file" "$(run_in_app "sha256sum $settings")" "$before"
+
+  run_in_app "rm $settings" || die "could not remove $settings"
+  container="$(docker compose ps --quiet app)"
+  if [ -z "$container" ]; then die "the app container is not running"; fi
+  docker compose restart app >"$LOG" 2>&1 || die "restarting the app container failed"
+  for _ in $(seq 150); do
+    state="$(docker inspect --format '{{if .State.Running}}running{{else}}{{.State.ExitCode}}{{end}}' "$container")"
+    if [ "$state" != running ]; then break; fi
+    sleep 2
+  done
+  if [ "$state" != running ] && [ "$state" != 0 ]; then
+    pass "the container stops when the database already holds CiviCRM"
+  else
+    fail "the container stops when the database already holds CiviCRM" "container state: $state"
+  fi
+  if grep -q 'Found existing civicrm_\* database tables' <<<"$(docker compose logs app)"; then
+    pass "the log says why the installation stopped"
+  else
+    fail "the log says why the installation stopped"
+  fi
+  copy_error="$(docker cp "$container:$settings" - 2>&1 >/dev/null)"
+  if grep -q 'Could not find the file' <<<"$copy_error"; then
+    pass "the stopped installation leaves no settings file"
+  else
+    fail "the stopped installation leaves no settings file" "docker cp: ${copy_error:-copied the file}"
+  fi
 }

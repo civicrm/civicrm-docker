@@ -62,6 +62,8 @@ The `civicrm/civicrm` image comes with a convenience script for installing a sit
 
 It calls the standard CiviCRM installation process. See [build/civicrm/civicrm-docker-install](build/civicrm/civicrm-docker-install) for more details and the docker compose instructions above for an example of how you might call this script.
 
+Set `CIVICRM_AUTO_INSTALL=1` to run `civicrm-docker-install` when the container starts and `private/civicrm.settings.php` does not exist yet. The database must accept connections at that point (for example with `depends_on` and `condition: service_healthy`), otherwise the installation fails and the container stops. If the database already holds CiviCRM tables, the installation aborts, leaves no settings file and the container stops: persist `private/` so that a recreated container finds its settings file. Run the first installation in a single container. If an installation fails or is killed after it created tables, remove the settings file, if any, and the database tables before starting again.
+
 See also https://docs.civicrm.org/installation/en/latest/standalone/ for more details on the CiviCRM Standalone installation.
 
 ## Volumes

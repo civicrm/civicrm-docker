@@ -11,7 +11,7 @@ source "$(dirname "$0")/lib.sh"
 
 CIVICRM_FILES=/var/www/html/wp-content/uploads/civicrm
 
-start_and_install
+start_and_install wp-login.php
 install_probe
 
 # CiviCRM keeps its settings file and logs in wp-content/uploads/civicrm/: they may not be served.
@@ -51,5 +51,11 @@ check_opcache_headroom
 docker compose up --detach --force-recreate app >"$LOG" 2>&1 || die "recreating the app container failed"
 wait_for wp-login.php
 expect_status sample-page/ 200 "pretty permalinks still work after recreating the container"
+
+run_in_app 'wp option update timezone_string Europe/Berlin' >/dev/null || die "could not set the timezone"
+check_auto_install "$CIVICRM_FILES/civicrm.settings.php" wp-login.php
+timezone="$(docker compose exec -T db mariadb -ucivicrm -ptest civicrm --skip-column-names \
+  -e "SELECT option_value FROM wp_options WHERE option_name = 'timezone_string'")"
+expect_equal "the stopped installation keeps the WordPress options" "$timezone" Europe/Berlin
 
 finish
