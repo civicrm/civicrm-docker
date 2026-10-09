@@ -66,6 +66,11 @@ RUN set -eux && \
     docker-php-ext-install pdo_mysql && \
     docker-php-ext-install zip
 
+# Install Redis php-module.
+RUN set -eux && \
+    pecl install redis-6.3.0 && \
+    docker-php-ext-enable redis
+
 # Download cv (https://github.com/civicrm/cv)
 
 RUN curl -LsS https://download.civicrm.org/cv/cv.phar -o /usr/local/bin/cv \
