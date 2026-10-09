@@ -49,16 +49,19 @@ RUN set -eux; \
 # Tip: you can check what extensions have been installed with:
 # `php -r 'echo implode("\n",get_loaded_extensions());'`.
 
+# Install imagick and redis from PECL
 # imagick is required for eg. Mosaico
 RUN set -eux && \
-    pecl install imagick && \
-    docker-php-ext-enable imagick
+    pecl install imagick redis && \
+    docker-php-ext-enable imagick && \
+    docker-php-ext-enable redis
 
 # Configure gd with freetype, jpeg and webp support - required for Mosaico
 RUN set -eux && \
     docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp && \
     docker-php-ext-install -j$(nproc) gd
 
+# Install other PHP extensions
 RUN set -eux && \
     docker-php-ext-install bcmath && \
     docker-php-ext-install intl && \

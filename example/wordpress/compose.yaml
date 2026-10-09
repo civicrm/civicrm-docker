@@ -36,7 +36,13 @@ services:
       MYSQL_DATABASE: civicrm
       MYSQL_USER: civicrm
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+  redis:
+    hostname: redis
+    image: redis:8.10   # there is little experience with different redis version. You're invited to share yours
+    # volumes:            # if you want a persistant cache database
+    #   - redis-data:/data
 volumes:
   wpcontent:
   private:
   db:
+  # redis-data:
