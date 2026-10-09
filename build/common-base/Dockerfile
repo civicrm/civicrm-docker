@@ -74,6 +74,13 @@ RUN set -eux && \
 RUN curl -LsS https://download.civicrm.org/cv/cv.phar -o /usr/local/bin/cv \
     && chmod +x /usr/local/bin/cv
 
+# Use the default production PHP configuration and set a memory limit
+
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    && cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php-cli.ini" \
+    && echo 'memory_limit = ${PHP_MEMORY_LIMIT:-"256M"}\n'  >> $PHP_INI_DIR/php.ini \
+    && echo 'memory_limit = -1\n' >> $PHP_INI_DIR/php-cli.ini
+
 # Enable apache modules. expires and headers make CiviCRM's .htaccess set cache
 # lifetimes for static assets and the X-Content-Type-Options header.
 
@@ -95,8 +102,29 @@ RUN a2enconf civicrm
 
 RUN sed -i -e 's/^ServerTokens .*/ServerTokens Prod/' -e 's/^ServerSignature .*/ServerSignature Off/' /etc/apache2/conf-available/security.conf
 
+# Allow Apache port to be configurable
+
+RUN sed -i 's/80/${APACHE_PORT}/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
+
+ENV APACHE_PORT=80
+
 # Add CiviCRM specific PHP configuration
 
 COPY php-conf-civicrm.ini ${PHP_INI_DIR}/conf.d/civicrm.ini
 
 RUN chown www-data:www-data /var/www
+
+# Add our own entrypoint
+
+COPY civicrm-docker-entrypoint /usr/local/bin/
+
+# Set ENTRYPOINT
+
+ENTRYPOINT ["civicrm-docker-entrypoint"]
+
+# Set CMD
+#
+# Necessary because we redefined CMD. See
+# https://docs.docker.com/reference/dockerfile/#understand-how-cmd-and-entrypoint-interact
+
+CMD ["apache2-foreground"]
