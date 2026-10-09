@@ -31,17 +31,10 @@ ARG CIVICRM_DOWNLOAD_URL="https://download.civicrm.org/civicrm-${CIVICRM_VERSION
 # Download the CiviCRM tarball
 
 RUN curl --fail --location ${CIVICRM_DOWNLOAD_URL} --output /tmp/civicrm-wordpress.zip \
-    && unzip /tmp/civicrm-wordpress.zip -d /var/www/html/wp-content/plugins \
-    && rm /tmp/civicrm-wordpress.zip
+  && unzip /tmp/civicrm-wordpress.zip -d /var/www/html/wp-content/plugins \
+  && rm /tmp/civicrm-wordpress.zip
 
 FROM ${IMAGE_PREFIX}/wordpress-base:php${PHP_VERSION}
-
-# Use the default production PHP configuration
-
-RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
-    && cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php-cli.ini" \
-    && echo 'memory_limit = ${PHP_MEMORY_LIMIT:-"256M"}\n'  >> $PHP_INI_DIR/php.ini \
-    && echo 'memory_limit = -1\n' >> $PHP_INI_DIR/php-cli.ini
 
 # Copy the downloaded tarball to /var/www/html as the www-data user
 
@@ -51,49 +44,17 @@ COPY --from=build  --chown=www-data:www-data /var/www/html /var/www/html
 
 COPY --chown=www-data:www-data wp-config.php /var/www/html
 
-# Add wp-cli config to allow it to write the `.htaccess` file
-
-COPY --chown=www-data:www-data wp-cli.yml /var/www/.wp-cli/config.yml
-
 # Create private directory for config file
 
 RUN mkdir /var/www/private && chown www-data:www-data /var/www/private
-
-# Add CiviCRM on WordPress specific Apache configuration
-
-COPY apache-conf-civicrm-wordpress.conf /etc/apache2/conf-available/civicrm-wordpress.conf
-
-RUN a2enconf civicrm-wordpress
-
-# Add our own entrypoint
-
-COPY civicrm-docker-entrypoint /usr/local/bin/
 
 # Add an installation script
 
 COPY civicrm-docker-install /usr/local/bin/
 
-ENV CIVICRM_UF=WordPress
 ENV WORDPRESS_CONFIG_FILE=/var/www/private/wp-config.php
-
-# Allow Apache port to be configurable
-
-RUN sed -i 's/80/${APACHE_PORT}/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
-
-ENV APACHE_PORT=80
 
 # Report healthy while Apache and PHP serve the login page
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s \
   CMD curl -fsS -o /dev/null http://localhost:${APACHE_PORT}/wp-login.php || exit 1
-
-# Set ENTRYPOINT
-
-ENTRYPOINT ["civicrm-docker-entrypoint"]
-
-# Set CMD
-#
-# Necessary because we redefined CMD. See
-# https://docs.docker.com/reference/dockerfile/#understand-how-cmd-and-entrypoint-interact
-
-CMD ["apache2-foreground"]

@@ -13,4 +13,12 @@ ARG IMAGE_PREFIX=civicrm
 
 FROM ${IMAGE_PREFIX}/common-base:php${PHP_VERSION}
 
-# Nothing here for the moment
+# Set the CMS to Standalone (i.e. none)
+
+ENV CIVICRM_UF=Standalone
+
+# Add CiviCRM Standalone specific Apache configuration
+
+COPY apache-conf-civicrm-standalone.conf /etc/apache2/conf-available/civicrm-standalone.conf
+
+RUN a2enconf civicrm-standalone

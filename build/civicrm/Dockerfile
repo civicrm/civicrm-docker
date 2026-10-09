@@ -19,56 +19,20 @@ ARG CIVICRM_DOWNLOAD_URL="https://download.civicrm.org/civicrm-${CIVICRM_VERSION
 # Download the tarball
 
 RUN curl --fail --location ${CIVICRM_DOWNLOAD_URL} --output civicrm-standalone.tar.gz \
-    && tar -xf civicrm-standalone.tar.gz \
-    && rm civicrm-standalone.tar.gz
+  && tar -xf civicrm-standalone.tar.gz \
+  && rm civicrm-standalone.tar.gz
 
 FROM ${IMAGE_PREFIX}/civicrm-base:php${PHP_VERSION}
-
-# Use the default production PHP configuration and set a memory limit
-
-RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
-    && cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php-cli.ini" \
-    && echo 'memory_limit = ${PHP_MEMORY_LIMIT:-"256M"}\n'  >> $PHP_INI_DIR/php.ini \
-    && echo 'memory_limit = -1\n' >> $PHP_INI_DIR/php-cli.ini
 
 # Copy the downloaded tarball to /var/www/html as the www-data user
 
 COPY --from=build  --chown=www-data:www-data /var/www/html/civicrm-standalone /var/www/html
 
-# Add CiviCRM Standalone specific Apache configuration
-
-COPY apache-conf-civicrm-standalone.conf /etc/apache2/conf-available/civicrm-standalone.conf
-
-RUN a2enconf civicrm-standalone
-
-# Add our own entrypoint
-
-COPY civicrm-docker-entrypoint /usr/local/bin/
-
 # Add an installation script
 
 COPY civicrm-docker-install /usr/local/bin/
-
-ENV CIVICRM_UF=Standalone
-
-# Allow Apache port to be configurable
-
-RUN sed -i 's/80/${APACHE_PORT}/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
-
-ENV APACHE_PORT=80
 
 # Report healthy while Apache and PHP serve the login page
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s \
   CMD curl -fsS -o /dev/null http://localhost:${APACHE_PORT}/civicrm/login || exit 1
-
-# Set ENTRYPOINT
-
-ENTRYPOINT ["civicrm-docker-entrypoint"]
-
-# Set CMD
-#
-# Necessary because we redefined CMD. See
-# https://docs.docker.com/reference/dockerfile/#understand-how-cmd-and-entrypoint-interact
-
-CMD ["apache2-foreground"]
