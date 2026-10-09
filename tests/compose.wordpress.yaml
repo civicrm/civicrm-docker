@@ -1,0 +1,16 @@
+# Added to compose.yaml for the WordPress image.
+services:
+  app:
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: civicrm
+      WORDPRESS_DB_USER: civicrm
+      WORDPRESS_DB_PASSWORD: test
+      WORDPRESS_SITE_TITLE: test
+    volumes:
+      - wpcontent:/var/www/html/wp-content
+      - private:/var/www/private
+
+volumes:
+  wpcontent:
+  private:
