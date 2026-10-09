@@ -82,6 +82,11 @@ RUN sed -i 's/80/${APACHE_PORT}/g' /etc/apache2/sites-available/000-default.conf
 
 ENV APACHE_PORT=80
 
+# Report healthy while Apache and PHP serve the login page
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s \
+  CMD curl -fsS -o /dev/null http://localhost:${APACHE_PORT}/wp-login.php || exit 1
+
 # Set ENTRYPOINT
 
 ENTRYPOINT ["civicrm-docker-entrypoint"]
