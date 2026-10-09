@@ -94,6 +94,8 @@ docker compose exec -u www-data app civicrm-docker-install
 
 See [/build/wordpress/civicrm-docker-install](build/wordpress/civicrm-docker-install) for details.
 
+Set `CIVICRM_AUTO_INSTALL=1` to run the script when the container starts and `wp-content/uploads/civicrm/civicrm.settings.php` does not exist yet. The database must accept connections at that point, otherwise the installation fails and the container stops. If the database already holds CiviCRM tables, the installation aborts without leaving a settings file and the container stops. An existing WordPress site keeps its options and `wp-config.php`. Run the first installation in a single container. If an installation fails or is killed after it created tables, remove the settings file, if any, and the CiviCRM tables before starting again.
+
 ## Volumes
 
 The following volumes should be persisted:

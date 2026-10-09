@@ -62,6 +62,8 @@ The `civicrm/civicrm` image comes with a convenience script for installing a sit
 
 It calls the standard CiviCRM installation process. See [build/civicrm/civicrm-docker-install](build/civicrm/civicrm-docker-install) for more details and the docker compose instructions above for an example of how you might call this script.
 
+Set `CIVICRM_AUTO_INSTALL=1` to run `civicrm-docker-install` when the container starts and `private/civicrm.settings.php` does not exist yet. The database must accept connections at that point (for example with `depends_on` and `condition: service_healthy`), otherwise the installation fails and the container stops. If the database already holds CiviCRM tables, the installation aborts, leaves no settings file and the container stops: persist `private/` so that a recreated container finds its settings file. Run the first installation in a single container. If an installation fails or is killed after it created tables, remove the settings file, if any, and the database tables before starting again.
+
 See also https://docs.civicrm.org/installation/en/latest/standalone/ for more details on the CiviCRM Standalone installation.
 
 ## Volumes
@@ -166,6 +168,17 @@ flowchart BT
     D[wordpress-base] --> E
     A --> D
 ```
+
+### Testing an image
+
+The scripts in `tests/` build an image from this checkout, install CiviCRM from it and check how it is served; the built images are removed afterwards. They exit non-zero if a check fails. Run `composer install` once beforehand, since they build through `build.php`.
+
+```shell
+tests/standalone.sh
+tests/wordpress.sh
+```
+
+`PHP_VERSION` selects the PHP version to build (default 8.5). To test an existing image instead of building one, set `IMAGE`, for example `IMAGE=civicrm/civicrm:php8.5 tests/standalone.sh`. Set `PORT` to run them on a different host port (defaults 8762 and 8763).
 
 ## Management
 
