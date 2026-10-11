@@ -16,11 +16,20 @@ ARG CIVICRM_VERSION
 
 ARG CIVICRM_DOWNLOAD_URL="https://download.civicrm.org/civicrm-${CIVICRM_VERSION}-standalone.tar.gz"
 
+# TODO: make an official release
+ARG MONOLOG_DOWNLOAD_URL="https://lab.civicrm.org/ufundo/monolog/-/package_files/9/download"
+
 # Download the tarball
 
 RUN curl --fail --location ${CIVICRM_DOWNLOAD_URL} --output civicrm-standalone.tar.gz \
     && tar -xf civicrm-standalone.tar.gz \
     && rm civicrm-standalone.tar.gz
+
+# Download Monolog and move into core ext dir
+RUN curl --fail --location ${MONOLOG_DOWNLOAD_URL} --output civicrm-monolog.tar.gz \
+    && tar -xf civicrm-monolog.tar.gz \
+    && rm civicrm-monolog.tar.gz \
+    && mv monolog civicrm-standalone/core/ext/monolog
 
 FROM ${IMAGE_PREFIX}/civicrm-base:php${PHP_VERSION}
 
@@ -45,9 +54,9 @@ RUN a2enconf civicrm-standalone
 
 COPY civicrm-docker-entrypoint /usr/local/bin/
 
-# Add an installation script
-
+# Add installation script and plugins
 COPY civicrm-docker-install /usr/local/bin/
+COPY setup-plugins /var/www/html/core/setup/plugins/docker
 
 ENV CIVICRM_UF=Standalone
 
