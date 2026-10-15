@@ -44,3 +44,21 @@ RUN set -eux && \
 
 RUN curl https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /usr/local/bin/wp \
     && chmod +x /usr/local/bin/wp
+
+# Add wp-cli config to allow it to write the `.htaccess` file
+
+COPY --chown=www-data:www-data wp-cli.yml /var/www/.wp-cli/config.yml
+
+# Set the CMS to WordPress
+
+ENV CIVICRM_UF=WordPress
+
+# Add CiviCRM on WordPress specific Apache configuration
+
+COPY apache-conf-civicrm-wordpress.conf /etc/apache2/conf-available/civicrm-wordpress.conf
+
+RUN a2enconf civicrm-wordpress
+
+# Overwrite the default entrypoint for a WordPress specific one
+
+COPY civicrm-docker-entrypoint /usr/local/bin/
