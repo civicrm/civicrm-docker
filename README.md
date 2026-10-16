@@ -68,6 +68,34 @@ See also https://docs.civicrm.org/installation/en/latest/standalone/ for more de
 
 The `/var/www/html/public`, `/var/www/html/private` and `/var/www/html/ext` directories should be persisted. See the [`example/civicrm/compose.yaml`](example/civicrm/compose.yaml) file for an example.
 
+## Patching CiviCRM core
+
+To carry local fixes to CiviCRM core without building your own image, mount a directory of patches read-only at `/var/www/patches` (or set `CIVICRM_PATCHES_DIR`):
+
+```yaml
+    volumes:
+      - ./patches:/var/www/patches:ro
+```
+
+Each `*.diff` or `*.patch` file in it is applied to core with `patch -p1` at container start, as the `www-data` user and in filename order, so patches made against a [civicrm-core](https://github.com/civicrm/civicrm-core) checkout work as-is. Mount it read-only: anyone who can write to it can change the code CiviCRM runs.
+
+Applied patches are recorded inside the core directory, so a restart skips them and a patch added later is applied on its own. When core is replaced, by recreating the container or upgrading CiviCRM, the patches are applied again; any whose changes are already present (eg. merged into CiviCRM since) are skipped.
+
+A patch that does not apply is left out and the container starts without it, logging a warning that names the patch. It is retried on every start until it is removed or updated.
+
+On WordPress, patches in a `wp` subdirectory (eg. `./patches/wp/`) are applied the same way to the CiviCRM plugin directory, `wp-content/plugins/civicrm`, so fixes to the [civicrm-wordpress](https://github.com/civicrm/civicrm-wordpress) plugin can be carried too.
+
+Each start rewrites `patchlog.log` in CiviCRM's log directory (`/var/www/html/private/log`, or `wp-content/uploads/civicrm/ConfigAndLog` for WordPress) with the status of every patch (`applied`, `applied earlier`, `already present` or `FAILED`), and prints the same report to the container log:
+
+```
+2026-10-02T11:31:43+00:00 patches for /var/www/html/core
+applied earlier  01-fix-something.diff
+applied          02-fix-something-else.diff
+FAILED           03-no-longer-applies.diff
+```
+
+This works for both the `civicrm/civicrm` and `civicrm/wordpress` images.
+
 ## Tags
 
 You can use tags to specify a CiviCRM version and php version, for example:
