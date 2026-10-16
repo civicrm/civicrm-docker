@@ -112,6 +112,10 @@ ENV APACHE_PORT=80
 
 COPY php-conf-civicrm.ini ${PHP_INI_DIR}/conf.d/civicrm.ini
 
+# Add functions shared by the civicrm-docker-install scripts
+
+COPY install-functions.php /usr/local/lib/civicrm-docker/
+
 RUN chown www-data:www-data /var/www
 
 # Add our own entrypoint
