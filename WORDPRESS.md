@@ -73,6 +73,8 @@ The following environment variables should be set in either the `compose.yaml` f
 
 **Optional**:
 
+- `CIVICRM_LANG` - Language to install CiviCRM in (e.g. `de_DE`), see below
+- `WORDPRESS_LANG` - Language to install WordPress in (default: `CIVICRM_LANG`, or its language without the region), see below
 - `APACHE_PORT` - Override Apache port inside container (default: 80)
 - `PHP_MEMORY_LIMIT` - PHP memory limit (default: 256M)
 
@@ -93,6 +95,8 @@ docker compose exec -u www-data app civicrm-docker-install
 **Important**: Run as `www-data` user to ensure correct file permissions.
 
 See [/build/wordpress/civicrm-docker-install](build/wordpress/civicrm-docker-install) for details.
+
+Set `CIVICRM_LANG` (for example `de_DE`) to install CiviCRM and WordPress in another language; where CiviCRM ships regional defaults for it, such as currency and formats, those are applied too. Where WordPress only has the language without the region (for example `ja` for CiviCRM's `ja_JP`), WordPress uses that. Set `WORDPRESS_LANG` to install WordPress in another locale; it is then used as given. The installation downloads the translations from wordpress.org and download.civicrm.org, so the container needs internet access at that point. WordPress updates its own translations. CiviCRM does not download later updates of its translation, including after an image upgrade, nor translations for extensions; the [Update Language Files](https://civicrm.org/extensions/update-language-files) extension takes care of both.
 
 ## Volumes
 
