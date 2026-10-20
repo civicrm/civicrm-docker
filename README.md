@@ -167,6 +167,17 @@ flowchart BT
     A --> D
 ```
 
+### Testing an image
+
+The scripts in `tests/` build an image from this checkout, install CiviCRM from it and check how it is served; the built images are removed afterwards. They exit non-zero if a check fails. Run `composer install` once beforehand, since they build through `build.php`.
+
+```shell
+tests/standalone.sh
+tests/wordpress.sh
+```
+
+`PHP_VERSION` selects the PHP version to build (default 8.5). To test an existing image instead of building one, set `IMAGE`, for example `IMAGE=civicrm/civicrm:php8.5 tests/standalone.sh`. Set `PORT` to run them on a different host port (defaults 8762 and 8763).
+
 ## Management
 
 The `./build.php` script can be used to build images.
