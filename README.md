@@ -10,6 +10,10 @@ If you are looking for CiviCRM on WordPress please see [WORDPRESS.md](/WORDPRESS
 
 There are currently no official images for CiviCRM with Joomla, Backdrop, or Drupal but we welcome contributions to add these images.
 
+## Security
+
+CiviCRM Docker images run PHP via Apache (`mod_php`). Stay current on **PHP security releases** and rebuild or pull updated images when maintainers publish them. See [SECURITY.md](SECURITY.md) for critical PHP advisories (including CERT-EU 2026-018 / CVE-2026-109618 and CVE-2026-109619), patched version numbers, and mitigations baked into the image.
+
 ## Quick start
 
 **Note**: these instructions provide a minimal local environment for testing purposes. You will likely want to adapt this for running in production. The instructions assume you are comfortable working with docker and docker compose. If that's not the case, then see the resources below for a quick introduction:
@@ -186,6 +190,7 @@ Command options are as follows:
 - **--builder=** - the docker build builder to use
 - **--platform=** - the platforms to build for
 - **--skip-push** - build the images but do not push them to Docker Hub
+- **--skip-php-patch-check** - allow pushing even when the pulled `php:*-apache-trixie` image is below the patched releases listed in [SECURITY.md](SECURITY.md) (emergency use only)
 - **--no-cache** - do not use a cache when building the images
 - **--dry-run** - just output the commands that would be executed
 - **--step** - run one step at a time

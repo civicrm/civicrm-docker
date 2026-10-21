@@ -7,7 +7,7 @@ use function Clippy\plugins;
 require_once __DIR__ . '/vendor/autoload.php';
 $c = clippy()->register(plugins());
 
-$c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php-version=] [--civicrm-version=] [--download-url=] [--download-prefix=] [--builder=] [--platform=] [--skip-push] [--skip-pull] [--no-cache]', function(
+$c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php-version=] [--civicrm-version=] [--download-url=] [--download-prefix=] [--builder=] [--platform=] [--skip-push] [--skip-pull] [--skip-php-patch-check] [--no-cache]', function(
   Clippy\Taskr $taskr,
   $imagePrefix,
   $imageFilter,
@@ -19,6 +19,7 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
   $platform,
   $skipPull,
   $skipPush,
+  $skipPhpPatchCheck,
   $noCache
 ) {
 
@@ -65,6 +66,8 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
       ]);
     }
   }
+
+  assertPhpPatchVersions($phpVersions, $debianVersion, (bool) $skipPhpPatchCheck, (bool) $skipPush);
 
   $args['IMAGE_PREFIX'] = $imagePrefix;
 
@@ -183,6 +186,55 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
     }
   }
 });
+
+/**
+ * Minimum patched PHP releases for CERT-EU 2026-018 (CVE-2026-109618, CVE-2026-109619).
+ *
+ * @see https://cert.europa.eu/publications/security-advisories/2026-018
+ * @see SECURITY.md
+ */
+const PHP_MINIMUM_PATCH_VERSIONS = [
+  '8.2' => '8.2.35',
+  '8.3' => '8.3.36',
+  '8.4' => '8.4.27',
+  '8.5' => '8.5.12',
+];
+
+function assertPhpPatchVersions(array $phpVersions, string $debianVersion, bool $skipCheck, bool $skipPush): void {
+  if ($skipCheck) {
+    return;
+  }
+
+  $unpatched = [];
+  foreach ($phpVersions as $minor) {
+    if (!isset(PHP_MINIMUM_PATCH_VERSIONS[$minor])) {
+      continue;
+    }
+    $required = PHP_MINIMUM_PATCH_VERSIONS[$minor];
+    $image = "php:{$minor}-apache-{$debianVersion}";
+    $reported = trim((string) shell_exec(
+      'docker run --rm ' . escapeshellarg($image) . ' php -r ' . escapeshellarg('echo PHP_VERSION;')
+    ));
+    if ($reported === '' || version_compare($reported, $required, '<')) {
+      $unpatched[] = "{$image} reports PHP {$reported}; need >= {$required}";
+    }
+  }
+
+  if ($unpatched === []) {
+    return;
+  }
+
+  $message = "PHP base image(s) are below patched versions for CERT-EU 2026-018:\n"
+    . implode("\n", array_map(fn($line) => "  - {$line}", $unpatched))
+    . "\nSee SECURITY.md. Re-pull when docker.io/library/php updates, or pass --skip-php-patch-check.\n";
+
+  if (!$skipPush) {
+    fwrite(STDERR, $message);
+    exit(1);
+  }
+
+  fwrite(STDERR, "warning: {$message}");
+}
 
 /**
  * Each image downloads its own archive flavour, so a single URL cannot serve
