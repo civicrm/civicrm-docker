@@ -142,6 +142,27 @@ my-civi/common-base    latest         29f972ae8200   7 minutes ago     561MB
 my-civi/common-base    php8.3         29f972ae8200   7 minutes ago     561MB
 ```
 
+### Building on your own PHP image
+
+By default the images build on the official [`php`](https://hub.docker.com/_/php) images. To use a PHP image you built yourself, for example from the Dockerfiles in [docker-library/php](https://github.com/docker-library/php), tag it the way the official images are tagged:
+
+```shell
+git clone https://github.com/docker-library/php.git
+docker build php/8.3/trixie/apache -t my-php/php:8.3-apache-trixie
+```
+
+Then pass the repository to `build.php` with `--php-image`, and `--skip-pull` so the local image is used:
+
+```shell
+./build.php --php-version=8.3 --php-image=my-php/php --image-prefix=my-civi --skip-pull --skip-push
+```
+
+Or pass `PHP_IMAGE` and `IMAGE_TAG` to `build/common-base` directly:
+
+```shell
+docker build build/common-base --build-arg PHP_IMAGE=my-php/php --build-arg IMAGE_TAG=8.3-apache-trixie -t my-civi/common-base:php8.3
+```
+
 ### Custom builds
 
 If you have a custom build process, for example if you have a special way to download CiviCRM, or want to install CiviCRM extensions in the image, consider using `civicrm/civicrm-base` as your base image.
