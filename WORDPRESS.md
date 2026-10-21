@@ -108,6 +108,8 @@ On first run, Docker automatically populates the `wpcontent` volume with the ima
 
 `/var/www/html/.htaccess` is not persisted: the entrypoint regenerates it on start, so manual edits are lost.
 
+To apply local patches to CiviCRM core, mount them read-only at `/var/www/patches`; patches for the CiviCRM plugin itself go in its `wp` subdirectory. See [Patching CiviCRM core](README.md#patching-civicrm-core).
+
 ## Tags
 
 WordPress images use the same tagging strategy as CiviCRM Standalone:
