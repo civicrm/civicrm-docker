@@ -20,7 +20,45 @@ const PHP_MINIMUM_PATCH_VERSIONS = [
   '8.5' => '8.5.12',
 ];
 
-function assertPhpPatchVersions(array $phpVersions, string $debianVersion, bool $skipCheck, bool $skipPush): void {
+function getPhpVersionFromDockerImage(string $imageRef): ?string {
+  $reported = trim((string) shell_exec(
+    'docker run --rm ' . escapeshellarg($imageRef) . ' php -r ' . escapeshellarg('echo PHP_VERSION;')
+  ));
+  return $reported === '' ? NULL : $reported;
+}
+
+/**
+ * Choose the official php Apache image tag to build from.
+ *
+ * Prefer the rolling minor tag (e.g. 8.3-apache-trixie). When Docker Library has
+ * not refreshed that tag after a security release, use the explicit patch tag from
+ * PHP_MINIMUM_PATCH_VERSIONS (e.g. 8.3.36-apache-trixie).
+ */
+function resolvePhpApacheImageTag(string $minor, string $debianVersion, bool $skipPatchFloor): string {
+  $rolling = "{$minor}-apache-{$debianVersion}";
+  if ($skipPatchFloor || !isset(PHP_MINIMUM_PATCH_VERSIONS[$minor])) {
+    return $rolling;
+  }
+
+  $required = PHP_MINIMUM_PATCH_VERSIONS[$minor];
+  $rollingVersion = getPhpVersionFromDockerImage("php:{$rolling}");
+  if ($rollingVersion !== NULL && version_compare($rollingVersion, $required, '>=')) {
+    return $rolling;
+  }
+
+  $pinned = "{$required}-apache-{$debianVersion}";
+  $pinnedVersion = getPhpVersionFromDockerImage("php:{$pinned}");
+  if ($pinnedVersion !== NULL && version_compare($pinnedVersion, $required, '>=')) {
+    fwrite(STDERR, "note: building from php:{$pinned} because php:{$rolling}"
+      . ($rollingVersion !== NULL ? " is still PHP {$rollingVersion}" : ' is unavailable')
+      . " (< {$required}).\n");
+    return $pinned;
+  }
+
+  return $rolling;
+}
+
+function assertPhpPatchVersions(array $phpVersions, array $phpImageTags, bool $skipCheck, bool $skipPush): void {
   if ($skipCheck) {
     return;
   }
@@ -31,11 +69,10 @@ function assertPhpPatchVersions(array $phpVersions, string $debianVersion, bool 
       continue;
     }
     $required = PHP_MINIMUM_PATCH_VERSIONS[$minor];
-    $image = "php:{$minor}-apache-{$debianVersion}";
-    $reported = trim((string) shell_exec(
-      'docker run --rm ' . escapeshellarg($image) . ' php -r ' . escapeshellarg('echo PHP_VERSION;')
-    ));
-    if ($reported === '' || version_compare($reported, $required, '<')) {
+    $imageTag = $phpImageTags[$minor] ?? "{$minor}-apache-trixie";
+    $image = "php:{$imageTag}";
+    $reported = getPhpVersionFromDockerImage($image);
+    if ($reported === NULL || version_compare($reported, $required, '<')) {
       $unpatched[] = "{$image} reports PHP {$reported}; need >= {$required}";
     }
   }
@@ -46,7 +83,8 @@ function assertPhpPatchVersions(array $phpVersions, string $debianVersion, bool 
 
   $message = "PHP base image(s) are below patched versions for CERT-EU 2026-018:\n"
     . implode("\n", array_map(fn($line) => "  - {$line}", $unpatched))
-    . "\nSee SECURITY.md. Re-pull when docker.io/library/php updates, or pass --skip-php-patch-check.\n";
+    . "\nSee SECURITY.md. Update PHP_MINIMUM_PATCH_VERSIONS in build.php when new security patches ship,"
+    . " re-pull from Docker Hub, or pass --skip-php-patch-check.\n";
 
   if (!$skipPush) {
     fwrite(STDERR, $message);
@@ -106,17 +144,23 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
   // The default image prefix is the official one.
   $imagePrefix ??= 'civicrm';
 
+  $phpImageTags = [];
+  foreach ($phpVersions as $phpVersion) {
+    $phpImageTags[$phpVersion] = resolvePhpApacheImageTag(
+      $phpVersion,
+      $debianVersion,
+      (bool) $skipPhpPatchCheck
+    );
+  }
+
   // Make sure we have the latest base image before we get started.
-  if(!$skipPull){
-    foreach ($phpVersions as $phpVersion) {
-      $taskr->passthru('docker pull php:{{0}}-apache-{{1}}', [
-        $phpVersion,
-        $debianVersion,
-      ]);
+  if (!$skipPull) {
+    foreach ($phpImageTags as $imageTag) {
+      $taskr->passthru('docker pull php:{{0}}', [$imageTag]);
     }
   }
 
-  assertPhpPatchVersions($phpVersions, $debianVersion, (bool) $skipPhpPatchCheck, (bool) $skipPush);
+  assertPhpPatchVersions($phpVersions, $phpImageTags, (bool) $skipPhpPatchCheck, (bool) $skipPush);
 
   $args['IMAGE_PREFIX'] = $imagePrefix;
 
@@ -219,7 +263,7 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
     foreach ($phpVersions as $phpVersion) {
 
       $args['PHP_VERSION'] = $phpVersion;
-      $args['IMAGE_TAG'] = (isset($phpVersion) ? "$phpVersion-" : '') . 'apache' . (isset($debianVersion) ? "-$debianVersion" : '');
+      $args['IMAGE_TAG'] = $phpImageTags[$phpVersion];
       $args['CIVICRM_DOWNLOAD_URL'] = getDownloadUrl($image, $downloadUrl, $downloadPrefix, $buildCivicrmVersion);
       $parts = array_intersect_key(['CIVICRM_VERSION' => $buildCivicrmVersion, 'PHP_VERSION' => 'php' . $phpVersion], array_flip($image['tags']));
       $buildArgs = getBuildArgs($args, $image);

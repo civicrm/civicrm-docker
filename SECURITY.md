@@ -20,9 +20,11 @@ Upgrade the PHP runtime to at least:
 - PHP 8.3.36
 - PHP 8.2.35
 
-Images are rebuilt from `php:<minor>-apache-trixie` when maintainers run `./build.php`. After upstream publishes patched bases, **pull the newest tag** (for example `docker pull civicrm/civicrm:latest`) or rebuild locally with `./build.php --skip-push`.
+Images are rebuilt when maintainers run `./build.php`. The build script normally uses the rolling tag `php:<minor>-apache-trixie`. If that tag has not yet been updated after a security release, `./build.php` automatically builds from the matching patch tag (for example `php:8.3.36-apache-trixie`) listed in `PHP_MINIMUM_PATCH_VERSIONS` inside `build.php`. Once the rolling tag catches up, builds use it again.
 
-`./build.php` refuses to push images whose base PHP is still below these versions unless you pass `--skip-php-patch-check` (emergency use only).
+After maintainers publish new images, **pull the newest tag** (for example `docker pull civicrm/civicrm:latest`) or rebuild locally with `./build.php --skip-push`.
+
+`./build.php` refuses to push images whose chosen base PHP is still below these versions unless you pass `--skip-php-patch-check` (emergency use only). When PHP ships new security fixes, update `PHP_MINIMUM_PATCH_VERSIONS` in `build.php`.
 
 ### Mitigations in these images
 

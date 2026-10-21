@@ -190,7 +190,7 @@ Command options are as follows:
 - **--builder=** - the docker build builder to use
 - **--platform=** - the platforms to build for
 - **--skip-push** - build the images but do not push them to Docker Hub
-- **--skip-php-patch-check** - allow pushing even when the pulled `php:*-apache-trixie` image is below the patched releases listed in [SECURITY.md](SECURITY.md) (emergency use only)
+- **--skip-php-patch-check** - skip the CERT-EU 2026-018 floor in `build.php` and use rolling `php:<minor>-apache-trixie` tags only (emergency use only). By default, `./build.php` may use an explicit patch tag (e.g. `8.3.36-apache-trixie`) when the rolling tag lags; see [SECURITY.md](SECURITY.md).
 - **--no-cache** - do not use a cache when building the images
 - **--dry-run** - just output the commands that would be executed
 - **--step** - run one step at a time
