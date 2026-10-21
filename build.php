@@ -7,7 +7,7 @@ use function Clippy\plugins;
 require_once __DIR__ . '/vendor/autoload.php';
 $c = clippy()->register(plugins());
 
-$c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php-version=] [--civicrm-version=] [--download-url=] [--download-prefix=] [--builder=] [--platform=] [--skip-push]  [--no-cache]', function(
+$c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php-version=] [--civicrm-version=] [--download-url=] [--download-prefix=] [--builder=] [--platform=] [--skip-push] [--skip-pull] [--no-cache]', function(
   Clippy\Taskr $taskr,
   $imagePrefix,
   $imageFilter,
@@ -17,6 +17,7 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
   $downloadPrefix,
   $builder,
   $platform,
+  $skipPull,
   $skipPush,
   $noCache
 ) {
@@ -56,11 +57,13 @@ $c['app']->main('[--dry-run] [--step] [--image-prefix=] [--image-filter=] [--php
   $imagePrefix ??= 'civicrm';
 
   // Make sure we have the latest base image before we get started.
-  foreach ($phpVersions as $phpVersion) {
-    $taskr->passthru('docker pull php:{{0}}-apache-{{1}}', [
-      $phpVersion,
-      $debianVersion,
-    ]);
+  if(!$skipPull){
+    foreach ($phpVersions as $phpVersion) {
+      $taskr->passthru('docker pull php:{{0}}-apache-{{1}}', [
+        $phpVersion,
+        $debianVersion,
+      ]);
+    }
   }
 
   $args['IMAGE_PREFIX'] = $imagePrefix;
