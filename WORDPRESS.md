@@ -74,7 +74,9 @@ The following environment variables should be set in either the `compose.yaml` f
 **Optional**:
 
 - `APACHE_PORT` - Override Apache port inside container (default: 80)
-- `PHP_MEMORY_LIMIT` - PHP memory limit (default: 256M)
+- `PHP_MEMORY_LIMIT` - PHP memory limit for web requests (default: 256M)
+- `PHP_CLI_MEMORY_LIMIT` - PHP memory limit for the CLI, used by wp-cli/cv and cron (default: -1, unlimited)
+- `APACHE_MAX_REQUEST_WORKERS` - Apache `MaxRequestWorkers`, and `ServerLimit` with it (default: 150)
 
 ## Installation
 
