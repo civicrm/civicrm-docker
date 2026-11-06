@@ -1,24 +1,53 @@
-#!/usr/bin/env bash
-set -ex
+#!/usr/bin/env php
+<?php
 
-# create wp-config.php file
-wp config create --dbhost="${WORDPRESS_DB_HOST}" --dbname="${WORDPRESS_DB_NAME}" --dbuser="${WORDPRESS_DB_USER}" --dbpass="${WORDPRESS_DB_PASSWORD}" --config-file="${WORDPRESS_CONFIG_FILE}"
+/**
+ * Install WordPress and CiviCRM using the database and site settings passed
+ * in as environment variables.
+ */
 
-# Remove the ending lines from the external config file
-# The wrapper file (build/wordpress/wp-config.php) handles ABSPATH and wp-settings.php instead
-sed -i "/\/\* That's all, stop editing! Happy publishing\. \*\//,\$d" "${WORDPRESS_CONFIG_FILE}"
+require_once '/usr/local/lib/civicrm-docker/install-functions.php';
 
-wp core install \
-  --url="${CIVICRM_UF_BASEURL}" --title="${WORDPRESS_SITE_TITLE}" \
-  --admin_user="${CIVICRM_ADMIN_USER}" --admin_password="${CIVICRM_ADMIN_PASS}" \
-  --admin_email="${CIVICRM_ADMIN_EMAIL}"
+// Check this before WordPress is installed, so a missing variable can't leave
+// a half-installed site.
+$dsn = getDsn();
+$url = requireEnv('CIVICRM_UF_BASEURL');
+$configFile = requireEnv('WORDPRESS_CONFIG_FILE');
 
-# Correct default timezone and set default permalink
-wp option update timezone_string "UTC"
-wp rewrite structure '/%postname%/' --hard
+run([
+  'wp', 'config', 'create',
+  '--dbhost=' . getenv('WORDPRESS_DB_HOST'),
+  '--dbname=' . getenv('WORDPRESS_DB_NAME'),
+  '--dbuser=' . getenv('WORDPRESS_DB_USER'),
+  '--dbpass=' . getenv('WORDPRESS_DB_PASSWORD'),
+  '--config-file=' . $configFile,
+]);
 
-cv core:install \
-  --db="mysql://${CIVICRM_DB_USER}:${CIVICRM_DB_PASSWORD}@${CIVICRM_DB_HOST}:${CIVICRM_DB_PORT}/${CIVICRM_DB_NAME}" \
-  --url="${CIVICRM_UF_BASEURL}" \
-  -m "extras.adminUser=${CIVICRM_ADMIN_USER}" \
-  -m "extras.adminPass=${CIVICRM_ADMIN_PASS}"
+// The wrapper wp-config.php in the web root loads ABSPATH and wp-settings.php
+// itself, so drop everything from this marker onwards.
+$config = file_get_contents($configFile);
+$marker = strpos($config, "/* That's all, stop editing! Happy publishing. */");
+if ($marker !== FALSE) {
+  $lineStart = strrpos(substr($config, 0, $marker), "\n");
+  file_put_contents($configFile, substr($config, 0, $lineStart === FALSE ? 0 : $lineStart + 1));
+}
+
+run([
+  'wp', 'core', 'install',
+  '--url=' . $url,
+  '--title=' . getenv('WORDPRESS_SITE_TITLE'),
+  '--admin_user=' . getenv('CIVICRM_ADMIN_USER'),
+  '--admin_password=' . getenv('CIVICRM_ADMIN_PASS'),
+  '--admin_email=' . getenv('CIVICRM_ADMIN_EMAIL'),
+]);
+
+run(['wp', 'option', 'update', 'timezone_string', 'UTC']);
+run(['wp', 'rewrite', 'structure', '/%postname%/', '--hard']);
+
+run([
+  'cv', 'core:install',
+  '--db=' . $dsn,
+  '--url=' . $url,
+  '-m', 'extras.adminUser=' . getenv('CIVICRM_ADMIN_USER'),
+  '-m', 'extras.adminPass=' . getenv('CIVICRM_ADMIN_PASS'),
+]);

@@ -46,7 +46,7 @@ The following environment variables should be set in either the `compose.yaml` f
 **CiviCRM database**:
 
 - `CIVICRM_DB_HOST` - Database host (e.g. `db`)
-- `CIVICRM_DB_PORT` - Database port
+- `CIVICRM_DB_PORT` - Database port (default: `3306`)
 - `CIVICRM_DB_NAME` - Database name
 - `CIVICRM_DB_USER` - Database user
 - `CIVICRM_DB_PASSWORD` - Database password
