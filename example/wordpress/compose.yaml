@@ -8,6 +8,7 @@ services:
     volumes:
       - wpcontent:/var/www/html/wp-content
       - private:/var/www/private
+      # - ./patches:/var/www/patches:ro # Local CiviCRM core patches. Keep read-only.
     environment:
       # CIVICRM_DSN: mysql://civicrm:${MYSQL_PASSWORD}@db:3306/civicrm # Note: you can also pass database credentials as a DSN.
       CIVICRM_DB_HOST: db

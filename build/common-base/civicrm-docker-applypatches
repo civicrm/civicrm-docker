@@ -1,0 +1,145 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Apply local patches to CiviCRM at container start.
+ *
+ * Usage: civicrm-docker-applypatches <core-dir> <log-dir> [<subdir>=<dir> ...]
+ *
+ * Each *.diff or *.patch file in CIVICRM_PATCHES_DIR (default /var/www/patches)
+ * is applied to <core-dir> with `patch -p1`, in filename order. Each
+ * <subdir>=<dir> argument does the same for the patches in that subdirectory,
+ * applying them to <dir> (eg. the CiviCRM WordPress plugin). Changes to files
+ * under tests/ are left out when <dir> has no tests/ directory, as in CiviCRM
+ * release tarballs, so a diff taken from a pull request still applies.
+ *
+ * Applied patches are recorded in a file inside the directory they were applied
+ * to, so the record goes whenever that code is replaced (a recreated container,
+ * or a CiviCRM upgrade in a persistent volume) and the patches are then applied
+ * afresh. A patch that does not apply is left out with a warning and not
+ * recorded, so it is retried on every start.
+ *
+ * Each start rewrites patchlog.log in <log-dir> (CiviCRM's log directory) with
+ * the status of every patch, so it can be checked without the container logs.
+ */
+
+$usage = "Usage: civicrm-docker-applypatches <core-dir> <log-dir> [<subdir>=<dir> ...]\n";
+if ($argc < 3) {
+  fwrite(STDERR, $usage);
+  exit(1);
+}
+[, $coreDir, $logDir] = $argv;
+$patchesDir = getenv('CIVICRM_PATCHES_DIR') ?: '/var/www/patches';
+
+$targets = [$patchesDir => $coreDir];
+foreach (array_slice($argv, 3) as $arg) {
+  [$subdir, $dir] = array_pad(explode('=', $arg, 2), 2, '');
+  if ($subdir === '' || $dir === '') {
+    fwrite(STDERR, $usage);
+    exit(1);
+  }
+  $targets["{$patchesDir}/{$subdir}"] = $dir;
+}
+
+if (!is_dir($patchesDir)) {
+  exit(0);
+}
+
+/**
+ * Run a command without going through a shell and return its exit code.
+ */
+function run(array $command, bool $quiet = FALSE): int {
+  $null = ['file', '/dev/null', 'w'];
+  $process = proc_open($command, [STDIN, $quiet ? $null : STDOUT, $quiet ? $null : STDERR], $pipes);
+  return proc_close($process);
+}
+
+/**
+ * Get a patch without its changes to tests/, if the target has no tests/.
+ */
+function withoutMissingTests(string $patchFile, string $targetDir): string {
+  $lines = file($patchFile);
+  if (is_dir("{$targetDir}/tests")) {
+    return implode('', $lines);
+  }
+  $kept = [];
+  $skip = FALSE;
+  foreach ($lines as $line) {
+    // Each file's changes start with a `diff` line ending in its b/ path.
+    if (str_starts_with($line, 'diff ')) {
+      $path = preg_split('/\s+/', trim($line));
+      $skip = str_starts_with(preg_replace('#^[^/]*/#', '', end($path)), 'tests/');
+    }
+    if (!$skip) {
+      $kept[] = $line;
+    }
+  }
+  return implode('', $kept);
+}
+
+/**
+ * Get the status of a patch, applying it if it has not been already.
+ */
+function applyPatch(string $patchFile, string $targetDir, array $applied, string $record): string {
+  $patch = ['patch', '-d', $targetDir, '-p1', '--batch', '--silent', '-i', $patchFile];
+  if (in_array($record, $applied, TRUE)) {
+    return 'applied earlier';
+  }
+  // Dry-run first, so a patch that does not apply never leaves code half-patched.
+  if (run([...$patch, '--forward', '--dry-run'], TRUE) === 0) {
+    return run([...$patch, '--forward', '--no-backup-if-mismatch']) === 0 ? 'applied' : 'FAILED';
+  }
+  if (run([...$patch, '--reverse', '--dry-run'], TRUE) === 0) {
+    return 'already present';
+  }
+  return 'FAILED';
+}
+
+/**
+ * Apply the patches in one directory to a target directory, returning report lines.
+ */
+function applyPatches(string $sourceDir, string $targetDir): array {
+  $report = [date('c') . " patches for {$targetDir}"];
+  if (!is_dir($targetDir)) {
+    $report[] = "WARNING: {$targetDir} not found, not applying patches";
+    return $report;
+  }
+
+  $stateFile = "{$targetDir}/.civicrm-docker-patches";
+  $applied = is_file($stateFile) ? file($stateFile, FILE_IGNORE_NEW_LINES) : [];
+  $patchFiles = array_filter(glob("{$sourceDir}/*"), fn($file) => is_file($file) && in_array(pathinfo($file, PATHINFO_EXTENSION), ['diff', 'patch'], TRUE));
+
+  foreach ($patchFiles as $patchFile) {
+    $name = basename($patchFile);
+    $record = hash_file('sha256', $patchFile) . "  {$name}";
+    $filtered = tempnam(sys_get_temp_dir(), 'civicrm-patch-');
+    file_put_contents($filtered, withoutMissingTests($patchFile, $targetDir));
+    $status = applyPatch($filtered, $targetDir, $applied, $record);
+    unlink($filtered);
+
+    if ($status === 'FAILED') {
+      fwrite(STDERR, "WARNING: patch {$patchFile} does not apply to {$targetDir}, skipping it\n");
+    }
+    elseif ($status !== 'applied earlier' && @file_put_contents($stateFile, "{$record}\n", FILE_APPEND) === FALSE) {
+      fwrite(STDERR, "WARNING: could not write {$stateFile}, {$name} will be retried on the next start\n");
+    }
+    $report[] = sprintf('%-16s %s', $status, $name);
+  }
+  return $report;
+}
+
+$report = [];
+foreach ($targets as $sourceDir => $targetDir) {
+  // Core is always reported; another target only when it has a patches subdirectory.
+  if ($sourceDir === $patchesDir || is_dir($sourceDir)) {
+    $report = [...$report, ...applyPatches($sourceDir, $targetDir)];
+  }
+}
+
+$report = implode("\n", $report) . "\n";
+echo $report;
+// The log directory does not exist until CiviCRM is installed, which is not
+// worth failing the start for.
+if (@file_put_contents("{$logDir}/patchlog.log", $report) === FALSE) {
+  fwrite(STDERR, "WARNING: could not write {$logDir}/patchlog.log\n");
+}
