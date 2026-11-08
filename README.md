@@ -64,6 +64,22 @@ Each Apache prefork worker holds its own PHP interpreter, so `APACHE_MAX_REQUEST
 
 **Experimental**: you can override the default apache port (in the container) by setting `APACHE_PORT`.
 
+## Health check
+
+The images report healthy while Apache serves the login page (`/civicrm/login`, or `/wp-login.php` in `civicrm/wordpress`). A container that runs another command, such as a loop calling `cv core:cron`, inherits this check, never answers it and stays unhealthy, which also makes `docker compose up --wait` fail. Switch the check off for such a container:
+
+```yaml
+  cron:
+    image: civicrm/civicrm:latest
+    command: ["sh", "-c", "while true; do cv core:cron; sleep 300; done"]
+    user: www-data
+    # plus the environment and volumes of the app service
+    healthcheck:
+      disable: true
+```
+
+`docker compose up --wait` accepts a disabled check from Docker Compose 5.0.2 on; older versions stop with "has no healthcheck configured".
+
 ## Installation
 
 The `civicrm/civicrm` image comes with a convenience script for installing a site: `civicrm-docker-install`. The script expects database credentials and the admin username (`CIVICRM_ADMIN_USER`) and password (`CIVICRM_ADMIN_PASS`) to be set as environment variables.
