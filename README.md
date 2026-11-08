@@ -78,6 +78,8 @@ The images report healthy while Apache serves the login page (`/civicrm/login`, 
       disable: true
 ```
 
+`docker compose up --wait` accepts a disabled check from Docker Compose 5.0.2 on; older versions stop with "has no healthcheck configured".
+
 ## Installation
 
 The `civicrm/civicrm` image comes with a convenience script for installing a site: `civicrm-docker-install`. The script expects database credentials and the admin username (`CIVICRM_ADMIN_USER`) and password (`CIVICRM_ADMIN_PASS`) to be set as environment variables.
