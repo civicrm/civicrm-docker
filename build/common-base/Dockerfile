@@ -13,9 +13,11 @@
 # Images are generated for all supported minor releases of PHP that are
 # recommended by CiviCRM.
 
+# PHP_IMAGE replaces the official php repository with another one using the same tags.
+ARG PHP_IMAGE=php
 ARG IMAGE_TAG=apache
 
-FROM php:${IMAGE_TAG}
+FROM ${PHP_IMAGE}:${IMAGE_TAG}
 
 # Install required packages (including those required for PHP extensions).
 # 
