@@ -112,10 +112,10 @@ The `build/civicrm` Dockerfile is suitable for the most straight forward deploym
 
 For example:
 
-Build an image using CiviCRM 6.0 and PHP version 8.3:
+Build an image using CiviCRM 6.0.0 and PHP version 8.3:
 
 ```shell
-docker build build/civicrm --build-arg CIVICRM_VERSION=6.0 --build-arg PHP_VERSION=8.3 -t my-custom-build
+docker build build/civicrm --build-arg CIVICRM_VERSION=6.0.0 --build-arg PHP_VERSION=8.3 -t my-custom-build
 ```
 
 Build an image with the latest nightly version of CiviCRM:
