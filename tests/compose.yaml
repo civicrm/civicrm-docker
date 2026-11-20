@@ -1,0 +1,30 @@
+services:
+  app:
+    image: ${IMAGE:?set IMAGE to the image under test}
+    ports:
+      - ${PORT:?}:80
+    environment:
+      CIVICRM_DB_HOST: db
+      CIVICRM_DB_PORT: 3306
+      CIVICRM_DB_NAME: civicrm
+      CIVICRM_DB_USER: civicrm
+      CIVICRM_DB_PASSWORD: test
+      CIVICRM_UF_BASEURL: http://localhost:${PORT:?}
+      CIVICRM_ADMIN_USER: admin
+      CIVICRM_ADMIN_PASS: password
+      CIVICRM_ADMIN_EMAIL: admin@example.org
+      CIVICRM_AUTO_INSTALL: 1
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: mariadb:10.11
+    environment:
+      MYSQL_ROOT_PASSWORD: test
+      MYSQL_DATABASE: civicrm
+      MYSQL_USER: civicrm
+      MYSQL_PASSWORD: test
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 3s
+      retries: 40

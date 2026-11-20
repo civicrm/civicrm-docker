@@ -2,7 +2,11 @@
 
 set -e
 
-# TODO: run the installer if we are not installed and CIVICRM_AUTO_INSTALL=1
+# Install on the first start. Without input, civicrm-docker-install aborts if the database already holds CiviCRM.
+if [ "${CIVICRM_AUTO_INSTALL:-}" = 1 ] && [ ! -f /var/www/html/private/civicrm.settings.php ]; then
+  su www-data -s /bin/sh -c civicrm-docker-install </dev/null
+fi
+
 # TODO: run the upgrade if required and CIVICRM_AUTO_UPDATE=1
 
 exec docker-php-entrypoint "$@"
